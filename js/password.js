@@ -1,4 +1,5 @@
 const crypto = require("node:crypto")
+const jwt = require("jsonwebtoken")
 
 
 const hashPassword = (password) =>{
@@ -18,3 +19,5 @@ const checkPass = (enterPass,salt,checkPassword)=>{
     return checkPassword === hashedPassword
 
 }
+
+module.exports={hashPassword,checkPass}

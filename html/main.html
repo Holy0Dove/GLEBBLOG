@@ -3,25 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Gleb Blog</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header >
-        <div><h1>GLEB BLOG<h1></div>
+        <div class="color">
+        <div class="logo"><h1>GLEB BLOG<h1></div>
 
       <div class="Profile">
         <div >
+            <button onclick="closeLogin()">login</button>
             <div>MyProfile</div>
             <div>Settings</div>
         </div>
         <div class="image" ><img  width="70px" src="https://www.partyrama.co.uk/wp-content/plugins/partyrama-ecommerce-pro/includes/pro-images/prod-img/default/shreks-mini-cardboard-cutout-product-image.jpg"></div>
 
       </div>
+      
+    </div>
+    
     </header>
+    <aside class="popUp" style="display: none;">
+        
+        <div class="login">
+            <div class="buttons"><button  class="registerButton"  onclick="showRegister()">firstTime?</button> <button class="exit" onclick="closeLogin()">X</button></div>
+            
+            <div class="inLogin">
+                <p>nickname</p>
+             <input  class="registerData">
+             <p>password</p>
+             <input type="password" class="registerData"> <button class="showRegister , registerButton" onclick="loginInAccount()">submit</button>
+             
+             <div class="showRegister" style="display: none;">
+                <p>repeat password</p>
+             <input type="password" class="registerData">  
+             <button class="registerButton" onclick="register()">Register</button>
+            </div> 
+            </div>
+        </div>  
+    </aside>
 
     <main>
-        <input><button>create post</button>
+        <hr>
+       <hr>
+       <hr>
+        <div class="createPost">
+            <label>Make Your Own blog</label>
+            
+            <button>create post</button>
+        </div>
+
+        <div class="postList">
+            <ul>
+                <li>
+                    <div class="post">
+                    <img height="100%" src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Everest_North_Face_toward_Base_Camp_Tibet_Luca_Galuzzi_2006.jpg">
+                    </div>
+
+                    <div><p>so its image is about some moutian ...</p></div>
+                    <hr align="left" class="posthr">
+                </li>
+                <li>
+                    <div class="post">
+                    <img height="100%" src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Everest_North_Face_toward_Base_Camp_Tibet_Luca_Galuzzi_2006.jpg">
+                    </div>
+
+                    <div><p>so its image is about some moutian ...</p></div>
+                    <hr align="left" class="posthr">
+                </li>
+            </ul>
+        </div>
     </main>
+    
+    <script>
+        const closeLogin =()=>{
+            
+            const style = document.getElementsByClassName("popUp")[0].style
+            style.display ? style.display ="" : style.display ="none"
+        }
+        const showRegister =()=>{
+            const toHide = document.getElementsByClassName("showRegister")
+           
+            for(let i =0 ; i<toHide.length; i++){
+                
+                toHide[i].style.display ? toHide[i].style.display="" : toHide[i].style.display ="none"
+            }
+        }
+        const register = ()=>{
+           const userLogin = document.getElementsByClassName("registerData")
+            const login = userLogin[0].value
+            const pas1 = userLogin[1].value
+            const pas2 = userLogin[2].value
+            if (pas1==pas2 && pas1){
+                
+            fetch("/register",{
+                method:"POST",
+                
+                    headers:{"content-type":"application/json"}
+                ,
+               body:JSON.stringify({
+                login:login,
+                pas1:pas1,
+                
+            }) })
+            .then(res=> res.text())
+            .then(data=> alert(data))
+            .catch(err=> alert(err))
+            }
+            else alert("your password1 and password2 not same or empty")
+           
+        }
+
+        const loginInAccount = ()=>{
+            const userLogin = document.getElementsByClassName("registerData")
+            const login = userLogin[0].value
+            const pas = userLogin[1].value
+            if(pas && login){
+            fetch("/login",{
+                method:"POST",
+                headers:{"content-type":"application/json"},
+                body:JSON.stringify({
+                    login:login,
+                    pas:pas
+                })})
+                .then(res=> res.text())
+                .then(text=> alert(text))
+                .catch(err=>alert(err))
+                    
+                
+            }
+            else alert("bro your pass or login empty")
+
+        }
+
+    </script>
 </body>
 </html>

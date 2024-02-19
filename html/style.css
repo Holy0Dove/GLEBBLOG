@@ -1,14 +1,122 @@
-header{
+header .color{
+    margin-left: -15px;
+    margin-top: -10px;
+    height: 100px;
     display: flex;
-   width: 100%;
+   width: 101%;
    background-color: gainsboro;
+   position: fixed;
+   border-style:groove ;
+}
+
+
+main{
+    padding-top: 100px;
+    
 }
 .Profile {
-    
+display: inline-flex;
 margin-left: auto;
 text-align: right;
+padding-top: 5px;
+    padding-right: 5px;
+}
+.logo{
+    margin-left: 25%;
+    
 }
 
 .image{
     padding-left: 10px;
+    
+}
+hr{
+    height: 1px;
+    background-color: black;
+    
+}
+li{
+    padding-top: 50px;
+    display:block;
+    list-style-type: none;
+    
+    
+}
+.post{
+    width: 500px;
+    height: 350px;
+    background-color: aquamarine;
+}
+.posthr{
+    margin-left: 10px;
+    margin-top: 50px;
+    width: 500px;
+    background-color: gray;
+    
+}
+.postList{
+    
+    padding-left: 5%;
+}
+.createPost{
+    text-align: center;
+    margin-left: 95px;
+    width: 400px;
+    display: grid;
+    padding-left: 5%;
+}
+.login{
+    
+    
+    padding-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 300px;
+    height: 150px;
+    border-style:outset;
+    background-color: bisque;
+    
+}
+.inLogin{
+    margin-left: 10%;
+}
+aside{
+    position: fixed;
+    width: 100%;
+    height: 100px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+    
+    
+}
+p{
+    margin:0;
+}
+.exit{
+    border-style: outset;
+    color:black;
+    border-color: black;
+    margin-left: 3px;
+    background: none;
+}
+.registerButton{
+    border-style: outset;
+    color:black;
+    border-color: black;
+    
+    background: none;
+}
+.exit:hover{
+    
+    color: crimson;
+    border-color: crimson;
+}
+.registerButton:hover{
+    color:green;
+    border-color: green;
+}
+.buttons{
+    display: flex;
+    margin-left: 64%;
 }
