@@ -8,16 +8,18 @@ const key = process.env.SECRET_KEY
 
 const makeAccessToken = (payload)=>{
 
-const token = jwt.sign(payload,key,{algorithm:"HS256",expiresIn:"15m"})
+const token = jwt.sign(payload,key,{algorithm:"HS256",expiresIn:"20s"})//for test, its should be 15m
 
 return token
 
 }
 
 
-const makeRefreshToken = (payload)=>{
-accessToken = makeAccessToken(payload)
-refreshToken = jwt.sign(payload,key,{algorithm:"HS256",expiresIn:"2h"})
+const makeRefreshToken = (payload,sqlConecction)=>{
+    
+const accessToken = makeAccessToken(payload)
+const refreshToken = jwt.sign(payload,key,{algorithm:"HS256",expiresIn:"2h"})
+//sqlConecction(refreshToken)  // still no special db for rt jwt
 return {accessToken,refreshToken}
 }
 
@@ -26,7 +28,7 @@ return {accessToken,refreshToken}
 const checkRefreshToken = (refreshToken)=>{
 return jwt.verify(refreshToken,key,(err,decoded)=>{
 if(err){
-return null
+return false
 }
 else{
     const {name,id} = decoded
@@ -41,11 +43,13 @@ return accessToken
 const checkAccessToken = (accessToken)=>{
   return jwt.verify(accessToken,key,(err,decoded)=>{
         if(err){
-            return false
+            return false //find error its send accessToken but should send 
         }else
-        return true
+        return decoded
     })
 }
+
+
 
 
 module.exports={makeRefreshToken,checkRefreshToken,checkAccessToken}

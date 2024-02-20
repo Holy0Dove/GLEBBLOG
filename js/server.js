@@ -3,23 +3,57 @@ const express = require("express")
 const https = require("https")
 const path = require("path")
 const cookieParser = require("cookie-parser")
+
+
+
+
+//files
 const{hashPassword,checkPass} = require("./password.js")
 const{addUser,addPassword,checkNickname,getIdByName,passById} = require("./mySQLConecction.js")
+const{makeRefreshToken,checkRefreshToken,checkAccessToken} = require("./jwt.js")
 
 
-pathToDir = path.join(__dirname,"../",)
+
+//variables
+const pathToDir = path.join(__dirname,"../",)
 
 
+
+//local fn
+const sendRT = (id,login)=>{
+const payload={id:id,login:login}
+return {accessToken,refreshToken}=makeRefreshToken(payload)
+
+//add for db code part //
+}
+
+
+
+//https options for certificates
 const options = {
     key: fs.readFileSync(pathToDir+"/cert/localhost.key"),
     cert: fs.readFileSync(pathToDir+"/cert/localhost.crt")
 }
 
 
+
 const app = express()
 app.use(express.json())
 app.use(cookieParser())
 app.use(express.static(pathToDir+"/html/"))
+
+
+
+
+app.use((req,res,next)=>{ //try check cookie and send login if have middleware
+const cookie = req.cookies
+console.log(checkAccessToken(cookie.at) ? true: "now it uses rt"/*checkRefreshToken(cookie.rt)*/)
+
+next()
+})
+
+
+
 app.get("/",(req,res)=>{
     
     res.status(200)
@@ -29,13 +63,14 @@ app.get("/",(req,res)=>{
 })
 
 
+
 app.get("/main",(req,res)=>{
     
     const html = fs.readFileSync(path.join( pathToDir,"html/main.html"))
-    const cookie = req.cookies
     
+   
     
-    console.log(cookie)
+   
     res.status(200)
     res.end(html)
     
@@ -51,7 +86,13 @@ app.post("/login",(req,res)=>{
            const{hashedPassword,salt}= hashSalt
            if(checkPass(user.pas,salt,hashedPassword))
            {
-            res.send("success")
+               
+               const{accessToken,refreshToken}= sendRT(id,user.login)
+                res.cookie("at",accessToken)
+                res.cookie("rt",refreshToken)
+                res.sendStatus(200)
+                res.end()
+               
            }else 
            res.send("bro something goes wrong")
             
@@ -77,6 +118,8 @@ app.post("/register",(req,res)=>{
          })
         }})
 })
+
+
 
 
 const server = https.createServer(options,app)
