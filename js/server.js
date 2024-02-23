@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser")
 
 //files
 const{hashPassword,checkPass} = require("./password.js")
-const{addUser,addPassword,checkNickname,getIdByName,passById} = require("./mySQLConecction.js")
+const{addUser,addPassword,checkNickname,getIdByName,passById,storeRefreshToken,checkDatabaseToken} = require("./mySQLConecction.js")
 const{makeRefreshToken,checkRefreshToken,checkAccessToken} = require("./jwt.js")
 
 
@@ -29,6 +29,7 @@ return {accessToken,refreshToken}=makeRefreshToken(payload)
 
 
 
+
 //https options for certificates
 const options = {
     key: fs.readFileSync(pathToDir+"/cert/localhost.key"),
@@ -45,11 +46,23 @@ app.use(express.static(pathToDir+"/html/"))
 
 
 
-app.use((req,res,next)=>{ //try check cookie and send login if have middleware
+app.use((req,res,next)=>{ //try check cookie and send login if have// middleware
 const cookie = req.cookies
-console.log(checkAccessToken(cookie.at) ? true: "now it uses rt"/*checkRefreshToken(cookie.rt)*/)
+
+let accessToken = checkAccessToken(cookie.at)
+
+
+if(accessToken){
+    req.user=accessToken
+}else if(checkRefreshToken(cookie.rt)){
+    const accessTokenCoded = checkRefreshToken(cookie.rt)
+   res.cookie("at",accessTokenCoded)
+   req.user=checkAccessToken(accessTokenCoded)
+}
+
 
 next()
+
 })
 
 
@@ -68,7 +81,8 @@ app.get("/main",(req,res)=>{
     
     const html = fs.readFileSync(path.join( pathToDir,"html/main.html"))
     
-   
+   try{console.log(req.user.login)}
+   catch{null}
     
    
     res.status(200)

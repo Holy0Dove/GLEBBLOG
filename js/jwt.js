@@ -8,7 +8,7 @@ const key = process.env.SECRET_KEY
 
 const makeAccessToken = (payload)=>{
 
-const token = jwt.sign(payload,key,{algorithm:"HS256",expiresIn:"20s"})//for test, its should be 15m
+const token = jwt.sign(payload,key,{algorithm:"HS256",expiresIn:"5s"})//for test, its should be 15m
 
 return token
 
@@ -31,8 +31,9 @@ if(err){
 return false
 }
 else{
-    const {name,id} = decoded
-const accessToken = makeAccessToken({name:name,id:id})
+    
+    const {id,login} = decoded
+const accessToken = makeAccessToken({login:login,id:id})
 return accessToken
 }
 
@@ -43,7 +44,7 @@ return accessToken
 const checkAccessToken = (accessToken)=>{
   return jwt.verify(accessToken,key,(err,decoded)=>{
         if(err){
-            return false //find error its send accessToken but should send 
+            return false //find error its send accessToken but should send rt
         }else
         return decoded
     })

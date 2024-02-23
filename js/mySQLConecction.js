@@ -68,7 +68,24 @@ return otherName.length == 0
 
 }
 
+const storeRefreshToken = async (id,rt)=>{
+await pool.query(`
+INSERT INTO resreshTokens (user_id,RT)
+VALUES(?,?)
 
+`,[id,rt])
 
+}
 
-module.exports={addUser,addPassword,checkNickname,getIdByName,passById}
+const checkDatabaseToken = async (id)=>{
+ const databaseRefreshToken = await pool.query(`
+  SELECT RT FROM resreshTokens
+  where user_id = ?
+
+  `,[id])
+
+return databaseRefreshToken[0][0].RT
+
+}
+
+module.exports={addUser,addPassword,checkNickname,getIdByName,passById,storeRefreshToken,checkDatabaseToken }
