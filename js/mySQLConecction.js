@@ -10,12 +10,13 @@ const sql = require("mysql2/promise")
 
 const lastId= async ()=>{
  
-  const [rows] = await pool.query(`
+  try {const [rows] = await pool.query(`
   SELECT user_id from USERS 
 order by user_id DESC
 limit 1
   `)
-  return rows[0].user_id+1
+  return rows[0].user_id+1}
+catch{return 1}
 } 
 const addUser = async (name)=>{
   const id = await lastId() 
@@ -24,6 +25,10 @@ const addUser = async (name)=>{
    INSERT INTO users (user_id,nickname)
    VALUES(?,?)
    `,[id,name])
+   pool.query(`
+   INSERT INTO resreshtokens (user_id)
+   VALUES(?)
+   `,[id])
    console.log("new user added")
    return id
 }
@@ -70,21 +75,20 @@ return otherName.length == 0
 
 const storeRefreshToken = async (id,rt)=>{
 await pool.query(`
-INSERT INTO resreshTokens (user_id,RT)
-VALUES(?,?)
-
-`,[id,rt])
+UPDATE resreshtokens 
+SET RT = ?
+WHERE user_id = ?
+`,[rt,id])
 
 }
 
-const checkDatabaseToken = async (id)=>{
- const databaseRefreshToken = await pool.query(`
+const checkDatabaseToken = async (rt)=>{
+  const token = await pool.query(`
   SELECT RT FROM resreshTokens
-  where user_id = ?
+  where RT = ?
+  `,[rt])
 
-  `,[id])
-
-return databaseRefreshToken[0][0].RT
+return token[0][0]
 
 }
 

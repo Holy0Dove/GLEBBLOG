@@ -4,22 +4,26 @@ header .color{
     height: 100px;
     display: flex;
    width: 101%;
-   background-color: gainsboro;
+   background-color:wheat;
    position: fixed;
    border-style:groove ;
+   
 }
-
+body{
+    background-color: whitesmoke;
+}
 
 main{
     padding-top: 100px;
-    
+    width: 106%;
+   
 }
 .Profile {
 display: inline-flex;
 margin-left: auto;
 text-align: right;
 padding-top: 5px;
-    padding-right: 5px;
+    padding-right: 20px;
 }
 .logo{
     margin-left: 25%;
@@ -31,9 +35,9 @@ padding-top: 5px;
     
 }
 hr{
-    height: 1px;
+    height: 2px;
     background-color: black;
-    
+    color: black;
 }
 li{
     padding-top: 50px;
@@ -60,10 +64,19 @@ li{
 }
 .createPost{
     text-align: center;
-    margin-left: 95px;
+    margin-left: 5%;
+    padding-left: 90px;
     width: 400px;
     display: grid;
-    padding-left: 5%;
+    padding-right: 2px;
+    
+}
+.createPostBackGround{
+    background-color: burlywood;
+    width: 110%;
+    
+    height: 60px;
+    
 }
 .login{
     
@@ -93,7 +106,7 @@ aside{
 p{
     margin:0;
 }
-.exit{
+/* .exit{
     border-style: outset;
     color:black;
     border-color: black;
@@ -106,7 +119,7 @@ p{
     border-color: black;
     
     background: none;
-}
+} */
 .exit:hover{
     
     color: crimson;
@@ -119,4 +132,15 @@ p{
 .buttons{
     display: flex;
     margin-left: 64%;
+}
+button{
+    border-style: outset;
+    color:black;
+    border-color: black;
+    margin-left: 3px;
+    background: none;
+}
+button:hover{
+    border-color:aquamarine;
+    color:aquamarine;
 }

@@ -21,10 +21,12 @@ const pathToDir = path.join(__dirname,"../",)
 
 //local fn
 const sendRT = (id,login)=>{
-const payload={id:id,login:login}
-return {accessToken,refreshToken}=makeRefreshToken(payload)
 
-//add for db code part //
+    const payload={id:id,login:login}
+    const {accessToken,refreshToken} = makeRefreshToken(payload)
+    storeRefreshToken(id,refreshToken)
+    return {accessToken,refreshToken}
+
 }
 
 
@@ -48,25 +50,39 @@ app.use(express.static(pathToDir+"/html/"))
 
 app.use((req,res,next)=>{ //try check cookie and send login if have// middleware
 const cookie = req.cookies
-
 let accessToken = checkAccessToken(cookie.at)
 
-
 if(accessToken){
+    
     req.user=accessToken
+next()
 }else if(checkRefreshToken(cookie.rt)){
-    const accessTokenCoded = checkRefreshToken(cookie.rt)
-   res.cookie("at",accessTokenCoded)
-   req.user=checkAccessToken(accessTokenCoded)
+    
+    checkDatabaseToken(cookie.rt).then(DbToken=>{
+        if(DbToken){
+            
+            const accessTokenCoded = checkRefreshToken(cookie.rt)
+            res.cookie("at",accessTokenCoded)
+            req.user=checkAccessToken(accessTokenCoded)
+            
+        }
+        next()
+    })
+
+    
+}else{
+    req.user=null
+    next()
 }
 
 
-next()
+
 
 })
 
 
 
+//get
 app.get("/",(req,res)=>{
     
     res.status(200)
@@ -79,17 +95,50 @@ app.get("/",(req,res)=>{
 
 app.get("/main",(req,res)=>{
     
-    const html = fs.readFileSync(path.join( pathToDir,"html/main.html"))
-    
-   try{console.log(req.user.login)}
-   catch{null}
-    
+    const mainPage = fs.readFileSync(path.join( pathToDir,"html/main.html"))
+    const logedMainPage = fs.readFileSync(path.join(pathToDir,"html/mainLoged.html"))
    
-    res.status(200)
-    res.end(html)
+    
+    
+    if(req.user){
+        
+        res.status(200)
+        res.end(logedMainPage)
+    }else{
+        res.status(200)
+        res.end(mainPage)
+    }
     
 })
 
+app.get("/settings",(req,res)=>{
+    const settingsPage = fs.readFileSync(path.join(pathToDir,"html/settingsLoged.html"))
+
+    if(req.user){
+        res.status(200)
+        res.end(settingsPage)
+    }else{
+    res.status(300)
+    res.redirect("/main")
+    }
+})
+
+
+
+app.get("/getUser",(req,res)=>{
+if(req.user){
+    res.status(200)
+    res.end(JSON.stringify(req.user))
+}
+else
+res.status(401)
+res.end()
+
+    
+})
+
+
+//post
 app.post("/login",(req,res)=>{
     const user = req.body
     
@@ -104,14 +153,14 @@ app.post("/login",(req,res)=>{
                const{accessToken,refreshToken}= sendRT(id,user.login)
                 res.cookie("at",accessToken)
                 res.cookie("rt",refreshToken)
-                res.sendStatus(200)
-                res.end()
+                res.status(200)
+                res.send(true)
                
            }else 
-           res.send("bro something goes wrong")
-            
+           res.send(null)
+
         })
-    }else res.send("bro something goes wrong")
+    }else res.send(null)
 
     })
 
@@ -132,8 +181,20 @@ app.post("/register",(req,res)=>{
          })
         }})
 })
+app.delete("/logout",(req,res)=>{
+   
+    res.status(200)
+    
+    res.cookie("at",null,{expires:new Date()})
+    res.cookie("rt",null,{expires:new Date()})
+    res.end()
+})
 
 
+app.get("*",(req,res)=>{
+    res.status(404)
+    res.end("notFound404")
+})
 
 
 const server = https.createServer(options,app)

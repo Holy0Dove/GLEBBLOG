@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gleb Blog</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header >
+        <div class="color">
+        <div class="logo"><h1>GLEB BLOG LOGED<h1></div>
+
+      <div class="Profile">
+        <div style="display:grid;">
+            
+           <div><button onclick="logout()" class="exit">logout</button></div>
+            <div><button>MyProfile</button></div>
+            <div><button onclick="settings()">Settings</button></div>
+        </div>
+        <div style="text-align: center;">
+            <div id="username"></div>
+            
+            <div class="image" ><img  width="70px" src="https://www.partyrama.co.uk/wp-content/plugins/partyrama-ecommerce-pro/includes/pro-images/prod-img/default/shreks-mini-cardboard-cutout-product-image.jpg"></div>
+        </div>
+      </div>
+      
+    </div>
+    
+    </header>
+   
+
+    <main>
+        <hr>
+       <hr>
+       
+       <div class="createPostBackGround">
+        
+        <div class="createPost">
+            <label>Its Time To Make Your Own Blog</label>
+            
+            <button>create post</button>
+        </div>
+    </div>
+        <div class="postList">
+            <ul>
+                <li>
+                    <div class="post">
+                    <img height="100%" src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Everest_North_Face_toward_Base_Camp_Tibet_Luca_Galuzzi_2006.jpg">
+                    </div>
+
+                    <div><p>so its image is about some moutian ...</p></div>
+                    <hr align="left" class="posthr">
+                </li>
+                <li>
+                    <div class="post">
+                    <img height="100%" src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Everest_North_Face_toward_Base_Camp_Tibet_Luca_Galuzzi_2006.jpg">
+                    </div>
+
+                    <div><p>so its image is about some moutian ...</p></div>
+                    <hr align="left" class="posthr">
+                </li>
+            </ul>
+        </div>
+    </main>
+    
+    <script>
+        const getUser = ()=>
+        {
+            fetch("/getUser",{
+                method:"GET"
+            }).then(answer => answer.text()).then(userData=>{
+                const user = JSON.parse(userData) 
+                document.getElementById("username").innerText= user.login
+                
+
+            })
+        }
+        getUser()
+
+
+       const logout=()=>{
+        fetch("/logout",{
+            method:"DELETE"
+            
+        }).then(answer=>{
+            location.reload()
+        })}
+
+       
+        const settings= ()=>{
+            window.location.href="/settings"
+        }
+
+
+    </script>
+</body>
+</html>
