@@ -39,7 +39,7 @@
         <div class="createPost">
             <label>Its Time To Make Your Own Blog</label>
             
-            <button>create post</button>
+            <button onclick="createPost()">create post</button>
         </div>
     </div>
         <div class="postList">
@@ -78,13 +78,17 @@
         }
         getUser()
 
+        const createPost=()=>{
+            window.location.href="/createPost"
+
+        }
 
        const logout=()=>{
         fetch("/logout",{
             method:"DELETE"
             
         }).then(answer=>{
-            location.reload()
+            document.location.reload()
         })}
 
        

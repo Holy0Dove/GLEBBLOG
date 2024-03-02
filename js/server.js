@@ -124,6 +124,19 @@ app.get("/settings",(req,res)=>{
 })
 
 
+app.get("/createPost",(req,res)=>{
+    const createPostPage = fs.readFileSync(path.join(pathToDir,"html/createLoged.html"))
+
+    if(req.user){
+        res.status(200)
+        res.end(createPostPage)
+    }else{
+    res.status(300)
+    res.redirect("/main")
+    }
+
+})
+
 
 app.get("/getUser",(req,res)=>{
 if(req.user){
@@ -190,6 +203,14 @@ app.delete("/logout",(req,res)=>{
     res.end()
 })
 
+app.patch("/changeData",(req,res)=>{
+     //TODO: add all changed data and update mySql for all stuff
+     console.log('its here')
+    res.status(200)
+    res.end(null)
+    
+
+})
 
 app.get("*",(req,res)=>{
     res.status(404)

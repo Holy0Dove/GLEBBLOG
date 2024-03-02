@@ -29,9 +29,40 @@
     
     </header>
 
-    <main></main>
+    <main>
+        <div class="settingsBackground">
+        <div class="settings">
+            <div>change login & username</div>
+            
+            
+            <input id="newLogin">
+            <br/>
+            <button onclick="changeLogin()">sumbit</button>
+            <hr> 
+            <div>change password </div>
+             <input>
+             <input>
+             <br/>
+             <button>sumbit</button>
+            <hr> 
+            <div>delete account</div>
+            <input type="checkbox"> <button class="exit">SURE?</button>
+        </div>
+        </div>
+    </main>
 
     <script>
+         const getUser = ()=>
+        {
+            fetch("/getUser",{
+                method:"GET"
+            }).then(answer => answer.text()).then(userData=>{
+                const user = JSON.parse(userData) 
+                document.getElementById("username").innerText= user.login
+                
+
+            })
+        }
         const logout=()=>{
             fetch("/logout",{
             method:"DELETE"
@@ -44,6 +75,34 @@
             window.location.href="/main"
         }
 
+        const changeLogin=()=>{
+           const login = document.getElementById("newLogin").value
+
+
+            if(login){
+                fetch("/changeData",{
+                    method:"PATCH",
+                    body:JSON.stringify({
+                        whatNeedChange:"login",
+                        data:login
+                    })}).then(answer => answer.text())
+                    .then(
+                        parsedAnswer => {
+                            if (parsedAnswer){
+                                logout()
+                                
+                            }else 
+                            {alert("something goes wrong")}
+                        }
+                    ).catch(err=>alert(err))
+                }
+            
+
+            else{
+                alert("bro, its empty")
+            }
+        }
+getUser()
     </script>
 </body>
 </html>

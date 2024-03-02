@@ -15,7 +15,7 @@ body{
 
 main{
     padding-top: 100px;
-    width: 106%;
+    width: 100%;
    
 }
 .Profile {
@@ -61,6 +61,20 @@ li{
 .postList{
     
     padding-left: 5%;
+}
+.settings{
+    margin-left: 25%;
+    background-color:gray ;
+    width: 50%;
+    height: 230px;
+}
+.settingsBackground{
+    width: 40%;
+    background-color:wheat;
+    display: grid;
+    text-align: center;
+    margin: auto;
+    
 }
 .createPost{
     text-align: center;
@@ -144,3 +158,11 @@ button:hover{
     border-color:aquamarine;
     color:aquamarine;
 }
+/* input[type=checkbox]{
+    border-style: outset;
+    color:black;
+    border-color: black;
+    background-color: aquamarine;
+    
+   
+} */
