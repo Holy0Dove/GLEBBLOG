@@ -25,10 +25,15 @@ const addUser = async (name)=>{
    INSERT INTO users (user_id,nickname)
    VALUES(?,?)
    `,[id,name])
+
    pool.query(`
    INSERT INTO resreshtokens (user_id)
    VALUES(?)
    `,[id])
+   pool.query(`
+    INSERT INTO save_post(user_id)
+    VALUES(?)
+   `[id])
    console.log("new user added")
    return id
 }
@@ -91,5 +96,42 @@ const checkDatabaseToken = async (rt)=>{
 return token[0][0]
 
 }
+const getPostId = async()=>{
+  try {const [rows] = await pool.query(`
+  SELECT post_id FROM posts 
+order by post_id DESC
+limit 1
+  `)
+  
+  return rows[0].post_id+1}
+catch{return 1}
+}
 
-module.exports={addUser,addPassword,checkNickname,getIdByName,passById,storeRefreshToken,checkDatabaseToken }
+const makePost = async (userId,post,postName,imageUrl)=>{
+postId = await getPostId()
+
+  await pool.query(`
+  INSERT INTO posts (user_id,post_id,textContent,dateOfPost,post_name,image_url)
+  VALUES(?,?,?,NOW(),?,?)
+  `,[userId,postId,post,postName,imageUrl])
+
+}
+const savePost = async (userId,post)=>{
+  await pool.query(`
+  UPDATE save_post 
+  SET textContent = ?
+  WHERE user_id = ?
+  
+  `,[post,userId])
+}
+const getSavePost = async (userId)=>{
+  const post = await pool.query(`
+  SELECT textContent FROM save_post 
+  WHERE user_id =?
+  `,[userId])
+return post[0][0].textContent
+}
+
+
+
+module.exports={addUser,addPassword,checkNickname,getIdByName,passById,storeRefreshToken,checkDatabaseToken,makePost,savePost,getSavePost}

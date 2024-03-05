@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser")
 
 //files
 const{hashPassword,checkPass} = require("./password.js")
-const{addUser,addPassword,checkNickname,getIdByName,passById,storeRefreshToken,checkDatabaseToken} = require("./mySQLConecction.js")
+const{addUser,addPassword,checkNickname,getIdByName,passById,storeRefreshToken,checkDatabaseToken,makePost,savePost,getSavePost} = require("./mySQLConecction.js")
 const{makeRefreshToken,checkRefreshToken,checkAccessToken} = require("./jwt.js")
 
 
@@ -138,8 +138,10 @@ app.get("/createPost",(req,res)=>{
 })
 
 
+
 app.get("/getUser",(req,res)=>{
 if(req.user){
+    
     res.status(200)
     res.end(JSON.stringify(req.user))
 }
@@ -150,6 +152,23 @@ res.end()
     
 })
 
+
+app.get("/getSavePost",(req,res)=>{
+    if(req.user){
+       const userId = req.user.id
+       getSavePost(userId).then(answer=>{
+        
+        res.status(200)
+        res.end(answer)
+
+       })
+        
+    }
+    else{
+    res.status(401)
+    res.end()
+    }
+})
 
 //post
 app.post("/login",(req,res)=>{
@@ -194,6 +213,24 @@ app.post("/register",(req,res)=>{
          })
         }})
 })
+
+app.post("/createPost",(req,res)=>{
+
+    
+    const postData = req.body
+    
+    const userId =req.user.id
+    if(postData.postOrSave == "post"){
+        makePost(userId,postData.post,postData.name,postData.image)
+        savePost(userId,null)
+
+    }else if(postData.postOrSave == "save"){
+        savePost(userId,postData.post)
+    }
+
+    
+})
+
 app.delete("/logout",(req,res)=>{
    
     res.status(200)

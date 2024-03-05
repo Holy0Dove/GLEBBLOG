@@ -7,18 +7,14 @@
     <link rel="stylesheet" href="style.css">
     <script src="//cdn.ckeditor.com/4.6.2/standard/ckeditor.js"></script>
     
-    <script type="text/javascript">
-      window.onload = () => {
-        CKEDITOR.replace("editor1");
-      };
-
-      function sendText() {
-        
-      }
+    <script>
+     
     </script>
 </head>
 <body>
-    <header >
+
+
+  <header >
         <div class="color">
         <div class="logo"><h1>GLEB BLOG CREATE POST<h1></div>
 
@@ -37,26 +33,141 @@
       </div>
       
     </div>
-    
-    </header>
-    <main style="padding-right: 10px;">
+  </header>
+
+
+
+
+
+
+  <main style="padding-right: 10px;">
+       <p></p> <textarea placeholder="name/overview" id="nameOfPost"></textarea>
+       <br>
+       <br>
+      <p></p> <input placeholder="main image (url)" id="url"> <button onclick="testUrl()">test url</button>
+      <div id="image"></div>
+      <br>
+      <br>
         <textarea name="editor1" id="CK1" ></textarea>
         <br>
-        <button class="button" onclick="sendText()">Submit text</button>
-    </main>
+        <button class="registerButton"  onclick="postText()">POST</button>
+        <button class="button" onclick="saveText()">SAVE</button>
+        
+  </main>
 
-    <script>
-         const goBack=()=>{
-            window.location.href="/main"
+    
+
+
+
+  <script>
+     const getUser = ()=>
+        {
+            fetch("/getUser",{
+                method:"GET"
+            }).then(answer => answer.text()).then(userData=>{
+                const user = JSON.parse(userData) 
+                document.getElementById("username").innerText= user.login
+                
+
+            })
         }
+        
+    window.onload = () => {
+        CKEDITOR.replace("editor1");
+        getSavePost()
+        getSavePost()
+    };
 
-        const logout=()=>{
+    const testUrl = ()=>{
+        const url = document.getElementById('url').value
+        const imgElement = document.createElement("img")
+        imgElement.setAttribute("src",url)
+        imgElement.setAttribute("id","test")
+
+        try{document.getElementById("test").remove()}catch{}
+        document.getElementById("image").appendChild(imgElement)
+    }
+
+
+    const postText =()=> {
+
+        const post = CKEDITOR.instances.CK1.getData()
+        const imgageUrl = document.getElementById('url').value
+        const nameOfPost = document.getElementById('nameOfPost').value
+
+        if (post && imgageUrl && nameOfPost){
+          
+           fetch("/createPost",{
+          method:"POST",
+          headers:{"content-type":"application/json"},
+          body: JSON.stringify({
+            postOrSave:"post",
+            post:post,
+            name:nameOfPost,
+            image:imgageUrl
+            
+            // document.getElementById("postPlace").innerHTML = post
+          })})
+        
+      
+        }else {
+          alert("bro something is empty")
+        }
+   }
+
+
+   const saveText=()=>{
+    const post = CKEDITOR.instances.CK1.getData()
+    fetch("/createPost",{
+      method:"post",
+      headers:{"content-type":"application/json"},
+      body:JSON.stringify({
+        postOrSave:"save",
+        post:post
+      })
+    })
+
+    
+   }
+
+   const getSavePost = ()=>{
+
+      fetch("/getSavePost",{
+        method:"GET"
+      })
+      .then(res=> res.text())
+      .then(post=>{
+        CKEDITOR.instances.CK1.setData(post)
+      })
+      .catch(err=> alert(err))
+
+   }
+
+
+
+
+   const goBack=()=>{
+        window.location.href="/main"
+      }
+
+      const logout=()=>{
             fetch("/logout",{
             method:"DELETE"
             
              }).then(answer=>{
             location.reload()
-        })}
-    </script>
+    })}
+
+    getUser()
+    
+    
+    
+    
+  </script>
+
+
+
+
+
 </body>
 </html>
