@@ -51,6 +51,19 @@ return result[0][0].user_id
 
 }
    
+const getINamebyId = async (id)=>{
+
+  try{ const result = await pool.query(`
+ SELECT nickname FROM users
+ where user_id = ?
+ `,[id])
+ return result[0][0].nickname 
+ }catch{
+   return null
+ }
+ 
+ }
+
 const addPassword = async (userID,password,salt)=>{
   await pool.query(`
   INSERT INTO passwords (user_id,hashedPassword,salt)
@@ -116,6 +129,30 @@ postId = await getPostId()
   `,[userId,postId,post,postName,imageUrl])
 
 }
+const getPost = async (postId)=>{
+  try{
+  post = await pool.query(`
+  SELECT * FROM posts
+  where post_id = ?
+  `,[postId])
+
+  return post[0][0]
+  }catch{return null}
+}
+
+const getFourPost = async (pageNum)=>{
+// const max = pageNum * 4 + 1
+// const min = max - 5
+const offset = (pageNum-1)*4 
+posts = await pool.query(`
+select post_id,post_name,image_url FROM posts 
+ORDER BY post_id DESC 
+LIMIT 4 OFFSET ? 
+
+`,[offset])
+return posts[0]
+}
+
 const savePost = async (userId,post)=>{
   await pool.query(`
   UPDATE save_post 
@@ -134,4 +171,4 @@ return post[0][0].textContent
 
 
 
-module.exports={addUser,addPassword,checkNickname,getIdByName,passById,storeRefreshToken,checkDatabaseToken,makePost,savePost,getSavePost}
+module.exports={addUser,addPassword,checkNickname,getIdByName,passById,storeRefreshToken,checkDatabaseToken,makePost,savePost,getSavePost,getPost,getINamebyId,getFourPost}

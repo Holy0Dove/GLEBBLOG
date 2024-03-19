@@ -7,15 +7,18 @@ header .color{
    background-color:wheat;
    position: fixed;
    border-style:groove ;
-   
+   background-image: url("");
 }
 body{
-    background-color: whitesmoke;
+    
+    background-image: url("https://preview.redd.it/x112k4xjrey71.jpg?auto=webp&s=2090abef5d87fd2e021ad1b3f83751733e7bc0dd");
+    
 }
 
 main{
     padding-top: 100px;
     width: 100%;
+    
    
 }
 .Profile {
@@ -87,7 +90,7 @@ li{
 }
 .createPostBackGround{
     background-color: burlywood;
-    width: 110%;
+    width: 100%;
     
     height: 60px;
     

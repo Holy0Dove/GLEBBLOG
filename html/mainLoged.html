@@ -42,26 +42,50 @@
             <button onclick="createPost()">create post</button>
         </div>
     </div>
-        <div class="postList">
-            <ul>
-                <li>
-                    <div class="post">
-                    <img height="100%" src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Everest_North_Face_toward_Base_Camp_Tibet_Luca_Galuzzi_2006.jpg">
-                    </div>
+    <div class="postList">
+        <ul>
+            <li><a href="/postN<%=posts[0].post_id%>">
+                <div class="post">
+                   <img style="height: 100%;" src=<%= posts[0].image_url %>> 
+                </div>
 
-                    <div><p>so its image is about some moutian ...</p></div>
-                    <hr align="left" class="posthr">
-                </li>
-                <li>
-                    <div class="post">
-                    <img height="100%" src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Everest_North_Face_toward_Base_Camp_Tibet_Luca_Galuzzi_2006.jpg">
-                    </div>
+                <p> "<%=posts[0].post_name %>" </p>
+                <hr align="left" class="posthr">
+                </a>
+            </li>
 
-                    <div><p>so its image is about some moutian ...</p></div>
-                    <hr align="left" class="posthr">
-                </li>
-            </ul>
-        </div>
+            <li><a href="/postN<%=posts[1].post_id%>">
+                <div class="post">
+                   <img style="height: 100%;" src=<%= posts[1].image_url %>> 
+                </div>
+
+                <p> "<%=posts[2].post_name %>" </p>
+                <hr align="left" class="posthr">
+                </a>
+            </li>
+
+            <li><a href="/postN<%=posts[2].post_id%>">
+                <div class="post">
+                   <img style="height: 100%;" src=<%= posts[2].image_url %>> 
+                </div>
+
+                <p> "<%=posts[2].post_name %>" </p>
+                <hr align="left" class="posthr">
+                </a>
+            </li>
+
+            <li><a href="/postN<%=posts[3].post_id%>">
+                <div class="post">
+                   <img style="height: 100%;" src=<%= posts[3].image_url %>> 
+                </div>
+
+                <p> "<%=posts[3].post_name %>" </p>
+                <hr align="left" class="posthr">
+                </a>
+            </li>
+
+        </ul>
+    </div>
     </main>
     
     <script>

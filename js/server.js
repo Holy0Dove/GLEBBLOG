@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser")
 
 //files
 const{hashPassword,checkPass} = require("./password.js")
-const{addUser,addPassword,checkNickname,getIdByName,passById,storeRefreshToken,checkDatabaseToken,makePost,savePost,getSavePost} = require("./mySQLConecction.js")
+const{addUser,addPassword,checkNickname,getIdByName,passById,storeRefreshToken,checkDatabaseToken,makePost,savePost,getSavePost,getPost,getINamebyId,getFourPost} = require("./mySQLConecction.js")
 const{makeRefreshToken,checkRefreshToken,checkAccessToken} = require("./jwt.js")
 
 
@@ -41,6 +41,8 @@ const options = {
 
 
 const app = express()
+app.set('view engine','ejs')
+app.set('views', path.join(pathToDir,"/views"))
 app.use(express.json())
 app.use(cookieParser())
 app.use(express.static(pathToDir+"/html/"))
@@ -95,19 +97,24 @@ app.get("/",(req,res)=>{
 
 app.get("/main",(req,res)=>{
     
-    const mainPage = fs.readFileSync(path.join( pathToDir,"html/main.html"))
-    const logedMainPage = fs.readFileSync(path.join(pathToDir,"html/mainLoged.html"))
-   
+    // const mainPage = fs.readFileSync(path.join( pathToDir,"html/main.html"))
+    // const logedMainPage = fs.readFileSync(path.join(pathToDir,"html/mainLoged.html"))
     
+   getFourPost(1).then(posts=>{
     
     if(req.user){
         
         res.status(200)
-        res.end(logedMainPage)
+        res.render("mainLoged",{posts,page:1})
     }else{
         res.status(200)
-        res.end(mainPage)
+        res.render("main",{posts,page:1})
     }
+    //TODO: finish settings for user
+   })
+    
+    
+    
     
 })
 
@@ -170,6 +177,62 @@ app.get("/getSavePost",(req,res)=>{
     }
 })
 
+
+
+app.get("/postN:postId",(req,res)=>{
+    
+        
+    getPost(req.params.postId).then(answer =>{
+
+        if(answer){
+
+        getINamebyId(answer.user_id).then(username=>{
+
+            const dateObject= new Date(answer.dateOfPost)
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const date = dateObject.getDate() +' '+ months[dateObject.getMonth()]
+
+            res.render('posts',{data:answer,username:username,date:date})
+            
+
+        })
+    }else{
+        res.status(404)
+        res.end("bro this is end")
+    }
+        
+        
+ 
+     })
+})
+
+
+
+app.get("/page:pageId",(req,res)=>{
+    if(req.params.pageId < 2){
+        res.status(300)
+    res.redirect("/main")
+    }else{
+        getFourPost(req.params.pageId).then(posts=>{
+            if(req.user){
+        
+                res.status(200)
+                res.render("mainLoged",{posts,page:req.params.pageId})
+            }else{
+                
+                res.status(200)
+                res.render("main",{posts,page:req.params.pageId})
+            }
+
+        })
+        
+    }
+
+
+
+})
+
+
 //post
 app.post("/login",(req,res)=>{
     const user = req.body
@@ -197,6 +260,8 @@ app.post("/login",(req,res)=>{
     })
 
 })
+
+
 
 app.post("/register",(req,res)=>{
     const newUser = req.body
