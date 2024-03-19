@@ -15,11 +15,11 @@ return token
 }
 
 
-const makeRefreshToken = (payload,sqlConecction)=>{
+const makeRefreshToken = (payload)=>{
     
 const accessToken = makeAccessToken(payload)
 const refreshToken = jwt.sign(payload,key,{algorithm:"HS256",expiresIn:"2h"})
-//sqlConecction(refreshToken)  // still no special db for rt jwt
+
 return {accessToken,refreshToken}
 }
 
