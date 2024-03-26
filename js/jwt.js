@@ -8,18 +8,18 @@ const key = process.env.SECRET_KEY
 
 const makeAccessToken = (payload)=>{
 
-const token = jwt.sign(payload,key,{algorithm:"HS256",expiresIn:"5s"})//for test, its should be 15m
-
+const token = jwt.sign(payload,key,{algorithm:"HS256",expiresIn:"5m"})//for test, its should be 15m
+console.log(token)
 return token
 
 }
 
 
-const makeRefreshToken = (payload,sqlConecction)=>{
+const makeRefreshToken = (payload)=>{
     
 const accessToken = makeAccessToken(payload)
 const refreshToken = jwt.sign(payload,key,{algorithm:"HS256",expiresIn:"2h"})
-//sqlConecction(refreshToken)  // still no special db for rt jwt
+
 return {accessToken,refreshToken}
 }
 
@@ -32,8 +32,9 @@ return false
 }
 else{
     
-    const {id,login} = decoded
-const accessToken = makeAccessToken({login:login,id:id})
+    const {id,login,imgUrl} = decoded
+    
+const accessToken = makeAccessToken({login:login,id:id,imgUrl:imgUrl})
 return accessToken
 }
 

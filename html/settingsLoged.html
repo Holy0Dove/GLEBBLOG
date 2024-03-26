@@ -7,6 +7,9 @@
         <link rel="stylesheet" href="style.css">
     </head>
 <body>
+
+
+
     <header >
         <div class="color">
         <div class="logo"><h1>GLEB BLOG SETTINGS<h1></div>
@@ -21,13 +24,15 @@
         <div style="text-align: center;">
             <div id="username"></div>
             
-            <div class="image" ><img  width="70px" src="https://www.partyrama.co.uk/wp-content/plugins/partyrama-ecommerce-pro/includes/pro-images/prod-img/default/shreks-mini-cardboard-cutout-product-image.jpg"></div>
+            <div class="image" ><img id="profile" height="70px" width="70px" src="https://www.partyrama.co.uk/wp-content/plugins/partyrama-ecommerce-pro/includes/pro-images/prod-img/default/shreks-mini-cardboard-cutout-product-image.jpg"></div>
         </div>
       </div>
       
     </div>
     
     </header>
+
+
 
     <main>
         <div class="settingsBackground">
@@ -38,18 +43,29 @@
             <input id="newLogin">
             <br/>
             <button onclick="changeLogin()">sumbit</button>
-            <hr> 
+            <hr>  
+
             <div>change password </div>
-             <input>
-             <input>
+             <input class="password" type="password">
+             <input class="password" type="password">
              <br/>
-             <button>sumbit</button>
+             <button onclick="changePassword()">sumbit</button>
             <hr> 
+            
+             new profile picture<br/>
+             <input placeholder="its should be url" id="imgUrl"><br/>
+             <button onclick="testUrl()">test your url</button>
+             <button onclick="changeProfileImg()">send</button>
+            <hr>
+
+
             <div>delete account</div>
-            <input type="checkbox"> <button class="exit">SURE?</button>
+            <input type="checkbox"> <button class="exit" onclick="alert('bruh, where did you go? i am was lazy... so there`s no function for delete  account')">SURE?</button>
         </div>
         </div>
     </main>
+
+
 
     <script>
          const getUser = ()=>
@@ -58,8 +74,9 @@
                 method:"GET"
             }).then(answer => answer.text()).then(userData=>{
                 const user = JSON.parse(userData) 
+                console.log(user)
                 document.getElementById("username").innerText= user.login
-                
+                document.getElementById("profile").src = user.imgUrl
 
             })
         }
@@ -82,26 +99,81 @@
             if(login){
                 fetch("/changeData",{
                     method:"PATCH",
+                    headers:{"content-type":"application/json"},
                     body:JSON.stringify({
                         whatNeedChange:"login",
                         data:login
-                    })}).then(answer => answer.text())
-                    .then(
-                        parsedAnswer => {
+                    })})
+                    .then(answer => answer.text())
+                    .then(parsedAnswer => {
                             if (parsedAnswer){
-                                logout()
                                 
+                                alert("success, now its gona logout, use your new login :>")
+                                logout()
                             }else 
                             {alert("something goes wrong")}
                         }
                     ).catch(err=>alert(err))
                 }
-            
-
             else{
                 alert("bro, its empty")
             }
         }
+        changePassword = ()=>{
+            const password = document.getElementsByClassName("password")
+            if(password[0].value==password[1].value && password[0].value){
+                fetch("/changeData",{
+
+                    method:"PATCH",
+                    headers:{"content-type":"application/json"},
+                    body:JSON.stringify({
+                        whatNeedChange:"password",
+                        data:password[0].value
+
+                    })
+                })
+                .then(answer => answer.text())
+                .then(response =>{
+                    if (response){
+                        alert("nice now it gona logout, try login again")
+                        logout()
+                    }
+                    else{
+                        alert("something goes wrong")
+                    }
+                }).catch(error=> console.log(alert))
+
+            }else{
+                alert("your pass empty or not same...")
+            }
+
+            
+        }
+        const testUrl=()=>{
+            const url = document.getElementById("imgUrl").value
+            document.getElementById("profile").src=url
+        }
+       const changeProfileImg = () =>{
+        const url = document.getElementById("imgUrl").value
+        if(url){
+            fetch("/changeData",{
+                method:"PATCH",
+                headers:{"content-type":"application/json"},
+                body:JSON.stringify({
+                    whatNeedChange:"image",
+                    data:url
+                })
+                
+            }).then(answer=>answer.text())
+                .then(answer=>{
+                    answer ? location.reload() : alert("something goes wrong")
+                })
+                .catch(err => alert(err))
+        }else{
+            alert("your url empty")
+        }
+       }
+
 getUser()
     </script>
 </body>

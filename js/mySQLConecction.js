@@ -38,6 +38,14 @@ const addUser = async (name)=>{
    return id
 }
 
+const changeNickname= async (id,newName) =>{
+await pool.query(`
+UPDATE users
+SET nickname = ?
+WHERE user_id = ?
+`,[newName,id])
+}
+
 const getIdByName = async (name)=>{
 
  try{ const result = await pool.query(`
@@ -69,6 +77,15 @@ const addPassword = async (userID,password,salt)=>{
   INSERT INTO passwords (user_id,hashedPassword,salt)
   VALUES(?,?,?)
   `,[userID,password,salt])
+}
+
+const changePassword = async (userID,password,salt)=>{
+  await pool.query(`
+  UPDATE passwords 
+  SET hashedPassword = ? ,
+  salt = ?
+  WHERE user_id = ?
+  `,[password,salt,userID])
 }
 
 const passById = async (id)=>{
@@ -141,17 +158,28 @@ const getPost = async (postId)=>{
 }
 
 const getFourPost = async (pageNum)=>{
-// const max = pageNum * 4 + 1
-// const min = max - 5
+
 const offset = (pageNum-1)*4 
 posts = await pool.query(`
-select post_id,post_name,image_url FROM posts 
+select user_id,post_id,post_name,image_url FROM posts 
 ORDER BY post_id DESC 
 LIMIT 4 OFFSET ? 
 
 `,[offset])
 return posts[0]
 }
+const FourPostFromUser = async (pageNum,userId)=>{
+
+  const offset = (pageNum-1)*4 
+  posts = await pool.query(`
+  select post_id,post_name,image_url FROM posts 
+  WHERE user_id = ?
+  ORDER BY post_id DESC 
+  LIMIT 4 OFFSET ? 
+  
+  `,[userId,offset])
+  return posts[0]
+  }
 
 const savePost = async (userId,post)=>{
   await pool.query(`
@@ -169,6 +197,52 @@ const getSavePost = async (userId)=>{
 return post[0][0].textContent
 }
 
+const changeProfileImg = async(userId,url)=>{
+  await pool.query(`
+  UPDATE users
+  SET profile_picture = ?
+  WHERE user_id = ?
+  `,[url,userId])
+}
+const getProfileImg= async(userId)=>{
+  const img = await pool.query(`
+    SELECT profile_picture 
+    FROM users
+    WHERE user_id = ? 
+  `,[userId])
+  return img[0][0].profile_picture
+}
 
+const userData = async(userId)=>{
+  const data = await pool.query(`
+  SELECT nickname, profile_picture
+  FROM users
+  WHERE user_id = ?
+  `,[userId])
+ return data[0][0]
+}
 
-module.exports={addUser,addPassword,checkNickname,getIdByName,passById,storeRefreshToken,checkDatabaseToken,makePost,savePost,getSavePost,getPost,getINamebyId,getFourPost}
+const sendToDB ={
+  addUser,
+  addPassword,
+  storeRefreshToken,
+  makePost,
+  savePost,
+  changeNickname,
+  changePassword,
+  changeProfileImg
+}
+const receiveFromDB ={
+  checkNickname,
+  getIdByName,
+  passById,
+  checkDatabaseToken,
+  getSavePost,
+  getPost,
+  getINamebyId,
+  getFourPost,
+  getProfileImg,
+  FourPostFromUser,
+  userData
+}
+module.exports={sendToDB,receiveFromDB}

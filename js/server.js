@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser")
 
 //files
 const{hashPassword,checkPass} = require("./password.js")
-const{addUser,addPassword,checkNickname,getIdByName,passById,storeRefreshToken,checkDatabaseToken,makePost,savePost,getSavePost,getPost,getINamebyId,getFourPost} = require("./mySQLConecction.js")
+const{sendToDB,receiveFromDB} = require("./mySQLConecction.js")
 const{makeRefreshToken,checkRefreshToken,checkAccessToken} = require("./jwt.js")
 
 
@@ -20,11 +20,11 @@ const pathToDir = path.join(__dirname,"../",)
 
 
 //local fn
-const sendRT = (id,login)=>{
+const sendRT = (id,login,imgUrl)=>{
 
-    const payload={id:id,login:login}
+    const payload={id:id,login:login,imgUrl:imgUrl}
     const {accessToken,refreshToken} = makeRefreshToken(payload)
-    storeRefreshToken(id,refreshToken)
+    sendToDB.storeRefreshToken(id,refreshToken)
     return {accessToken,refreshToken}
 
 }
@@ -60,7 +60,7 @@ if(accessToken){
 next()
 }else if(checkRefreshToken(cookie.rt)){
     
-    checkDatabaseToken(cookie.rt).then(DbToken=>{
+    receiveFromDB.checkDatabaseToken(cookie.rt).then(DbToken=>{
         if(DbToken){
             
             const accessTokenCoded = checkRefreshToken(cookie.rt)
@@ -100,15 +100,15 @@ app.get("/main",(req,res)=>{
     // const mainPage = fs.readFileSync(path.join( pathToDir,"html/main.html"))
     // const logedMainPage = fs.readFileSync(path.join(pathToDir,"html/mainLoged.html"))
     
-   getFourPost(1).then(posts=>{
+    receiveFromDB.getFourPost(1).then(posts=>{
     
     if(req.user){
         
         res.status(200)
-        res.render("mainLoged",{posts,page:1})
+        res.render("mainLoged",{posts,page:1,profile:null})
     }else{
         res.status(200)
-        res.render("main",{posts,page:1})
+        res.render("main",{posts,page:1,profile:null})
     }
     //TODO: finish settings for user
    })
@@ -152,6 +152,9 @@ if(req.user){
     res.status(200)
     res.end(JSON.stringify(req.user))
 }
+else if(req.userId){
+
+}
 else
 res.status(401)
 res.end()
@@ -163,7 +166,7 @@ res.end()
 app.get("/getSavePost",(req,res)=>{
     if(req.user){
        const userId = req.user.id
-       getSavePost(userId).then(answer=>{
+       receiveFromDB.getSavePost(userId).then(answer=>{
         
         res.status(200)
         res.end(answer)
@@ -182,11 +185,11 @@ app.get("/getSavePost",(req,res)=>{
 app.get("/postN:postId",(req,res)=>{
     
         
-    getPost(req.params.postId).then(answer =>{
+    receiveFromDB.getPost(req.params.postId).then(answer =>{
 
         if(answer){
 
-        getINamebyId(answer.user_id).then(username=>{
+            receiveFromDB.getINamebyId(answer.user_id).then(username=>{
 
             const dateObject= new Date(answer.dateOfPost)
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -213,15 +216,15 @@ app.get("/page:pageId",(req,res)=>{
         res.status(300)
     res.redirect("/main")
     }else{
-        getFourPost(req.params.pageId).then(posts=>{
+        receiveFromDB.getFourPost(req.params.pageId).then(posts=>{
             if(req.user){
         
                 res.status(200)
-                res.render("mainLoged",{posts,page:req.params.pageId})
+                res.render("mainLoged",{posts,page:req.params.pageId,profile:null})
             }else{
                 
                 res.status(200)
-                res.render("main",{posts,page:req.params.pageId})
+                res.render("main",{posts,page:req.params.pageId,profile:null})
             }
 
         })
@@ -232,20 +235,38 @@ app.get("/page:pageId",(req,res)=>{
 
 })
 
+app.get("/userProfile:userId/page:pageId",(req,res)=>{
+    
+    receiveFromDB.FourPostFromUser(req.params.pageId,req.params.userId).then(posts=>{
+        receiveFromDB.userData(req.params.userId).then(profile=>{
+            res.status(200)
+        res.render("main.ejs",{posts,page:req.params.pageId,profile:profile})
+
+        })
+        
+        
+
+    })
+    
+    
+})
+
 
 //post
 app.post("/login",(req,res)=>{
     const user = req.body
     
-    getIdByName(user.login).then((id)=>{
+    receiveFromDB.getIdByName(user.login).then((id)=>{
          
         if(id){
-        passById(id).then((hashSalt)=>{
+        receiveFromDB.passById(id).then((hashSalt)=>{
+            receiveFromDB.getProfileImg(id).then(imgUrl=>{
+                
            const{hashedPassword,salt}= hashSalt
            if(checkPass(user.pas,salt,hashedPassword))
            {
                
-               const{accessToken,refreshToken}= sendRT(id,user.login)
+               const{accessToken,refreshToken}= sendRT(id,user.login,imgUrl)
                 res.cookie("at",accessToken)
                 res.cookie("rt",refreshToken)
                 res.status(200)
@@ -253,7 +274,7 @@ app.post("/login",(req,res)=>{
                
            }else 
            res.send(null)
-
+        })
         })
     }else res.send(null)
 
@@ -267,13 +288,13 @@ app.post("/register",(req,res)=>{
     const newUser = req.body
     
 
-    checkNickname(newUser.login).then((answer)=>{
+    receiveFromDB.checkNickname(newUser.login).then((answer)=>{
         if(!answer){
             res.end("sorry this nick already taken")
         }else{
          const {hash,salt} = hashPassword(newUser.pas1)
-         addUser(newUser.login).then((id)=>{
-            addPassword(id,hash,salt)
+         sendToDB.addUser(newUser.login).then((id)=>{
+            sendToDB.addPassword(id,hash,salt)
             res.send("nice,now try login")
          })
         }})
@@ -286,11 +307,11 @@ app.post("/createPost",(req,res)=>{
     
     const userId =req.user.id
     if(postData.postOrSave == "post"){
-        makePost(userId,postData.post,postData.name,postData.image)
-        savePost(userId,null)
+        sendToDB.makePost(userId,postData.post,postData.name,postData.image)
+        sendToDB.savePost(userId,null)
 
     }else if(postData.postOrSave == "save"){
-        savePost(userId,postData.post)
+        sendToDB.savePost(userId,postData.post)
     }
 
     
@@ -307,9 +328,38 @@ app.delete("/logout",(req,res)=>{
 
 app.patch("/changeData",(req,res)=>{
      //TODO: add all changed data and update mySql for all stuff
-     console.log('its here')
-    res.status(200)
-    res.end(null)
+     
+     switch(req.body.whatNeedChange){
+        case"login":
+        // add a check for duplicate userName again
+        sendToDB.changeNickname(req.user.id,req.body.data)
+        console.log("we changing login")
+        res.status(200)
+        res.end("true")
+         break
+
+         case"password":
+            const {hash,salt}=hashPassword(req.body.data)
+            sendToDB.changePassword(req.user.id,hash,salt)
+            res.status(200)
+            res.end("true")
+         break
+
+         case"image":
+            sendToDB.changeProfileImg(req.user.id,req.body.data)
+            
+            res.status(200)
+            res.send("true")
+            
+            break
+
+         default:
+            res.status(400)
+            res.end(null)
+         
+     }
+     
+    
     
 
 })

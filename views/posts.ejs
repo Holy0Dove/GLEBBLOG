@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <header>
         <div class="color">
-        <div class="logo"><h1>"<%=data.post_name%>" by <%=username %> </br> <%=date%> <h1></div>
+        <div class="logo"><h1>"<%=data.post_name%>" by <a href="/userProfile<%=data.user_id%>/page1"><%=username %></a> </br> <%=date%> <h1></div>
 
       <div class="Profile">
         <div>
-            <button onclick="closeLogin()">login</button>
+            <button onclick="goBack()">mainPage</button>
             <button>about?</button>
         </div>
         <!-- <div class="image" ><img  width="70px" src="https://www.partyrama.co.uk/wp-content/plugins/partyrama-ecommerce-pro/includes/pro-images/prod-img/default/shreks-mini-cardboard-cutout-product-image.jpg"></div> -->
@@ -32,7 +32,9 @@
 
     <script>
         
-
+        const goBack = () =>{
+            location.replace("/main")
+        }
 
     </script>
 </body>
