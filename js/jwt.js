@@ -9,7 +9,7 @@ const key = process.env.SECRET_KEY
 const makeAccessToken = (payload)=>{
 
 const token = jwt.sign(payload,key,{algorithm:"HS256",expiresIn:"5m"})//for test, its should be 15m
-console.log(token)
+
 return token
 
 }
@@ -34,7 +34,7 @@ else{
     
     const {id,login,imgUrl} = decoded
     
-const accessToken = makeAccessToken({login:login,id:id,imgUrl:imgUrl})
+const accessToken = makeAccessToken({login:login,id:id})
 return accessToken
 }
 

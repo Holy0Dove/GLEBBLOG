@@ -22,7 +22,7 @@
             <%}else{%>
             <button onclick="closeLogin()">login</button>
             <%}%>
-            <button>about?</button>
+            <button onclick="location.replace('/about')">about?</button>
         </div>
         <!-- <div class="image" ><img  width="70px" src="https://www.partyrama.co.uk/wp-content/plugins/partyrama-ecommerce-pro/includes/pro-images/prod-img/default/shreks-mini-cardboard-cutout-product-image.jpg"></div> -->
 
@@ -55,9 +55,30 @@
         <hr>
        <hr>
        <hr>
-        
+    <%if(newUsers){%>
+        <div style="width: 100%; height: 0;  position: absolute; background-color: aliceblue; ">
+            
+            <aside class="sideBar">
+                <b >New Users</b>
+             <ul id="users">
+                
+                <%for(let i = 0; i < newUsers.length;i++){%>
+                    <li style=" margin-right: 30%;">
+                        <p><%=newUsers[i].nickname%></p>
+                       <a href="/userProfile<%=newUsers[i].user_id%>/page1">
+                         <img src="<%=newUsers[i].profile_picture%>" width="70px" height="70px" > </a>
+                    </li>
+            <%}%>
+                 
+             </ul>
+            </aside>   
+             </div>
+           
+         <%}%>
 
+       
         <div class="postList">
+            
             <ul>
                 <%if(posts[0]) {%>
                 <li>
@@ -121,12 +142,15 @@
 
             </ul>
         </div>
+        
     </main>
+    
 
    
     
     <%if(posts[3]) {%>
         <%if(page>1){%>
+
         <button style="width: 500px; margin-left: 132px;" onclick="backPage()">BACK</button>
         <%}%>
         <button onclick="nextPage()" style="width: 500px; margin-left: 132px;">NEXT</button>
@@ -134,8 +158,10 @@
         <%} else{ %>
 
             <p style="margin-left: 132px;">here no more post ;(</p>
-            <button style="width: 500px; margin-left: 132px;" onclick="backPage()">BACK</button>
-           
+            <%if(page>1){%>
+
+                <button style="width: 500px; margin-left: 132px;" onclick="backPage()">BACK</button>
+                <%}%>
         <%}%>
             
     <script>

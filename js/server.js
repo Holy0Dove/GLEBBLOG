@@ -20,9 +20,9 @@ const pathToDir = path.join(__dirname,"../",)
 
 
 //local fn
-const sendRT = (id,login,imgUrl)=>{
+const sendRT = (id,login)=>{
 
-    const payload={id:id,login:login,imgUrl:imgUrl}
+    const payload={id:id,login:login}
     const {accessToken,refreshToken} = makeRefreshToken(payload)
     sendToDB.storeRefreshToken(id,refreshToken)
     return {accessToken,refreshToken}
@@ -57,7 +57,10 @@ let accessToken = checkAccessToken(cookie.at)
 if(accessToken){
     
     req.user=accessToken
-next()
+    receiveFromDB.getProfileImg(req.user.id).then(img => {req.user.imgUrl=img
+        next()
+    })
+
 }else if(checkRefreshToken(cookie.rt)){
     
     receiveFromDB.checkDatabaseToken(cookie.rt).then(DbToken=>{
@@ -66,9 +69,11 @@ next()
             const accessTokenCoded = checkRefreshToken(cookie.rt)
             res.cookie("at",accessTokenCoded)
             req.user=checkAccessToken(accessTokenCoded)
-            
+            receiveFromDB.getProfileImg(req.user.id).then(img => {req.user.imgUrl=img
+                next()
+            })
         }
-        next()
+        
     })
 
     
@@ -86,7 +91,7 @@ next()
 
 //get
 app.get("/",(req,res)=>{
-    
+    console.log(req.user)
     res.status(200)
     res.redirect("main")
     
@@ -101,16 +106,21 @@ app.get("/main",(req,res)=>{
     // const logedMainPage = fs.readFileSync(path.join(pathToDir,"html/mainLoged.html"))
     
     receiveFromDB.getFourPost(1).then(posts=>{
+    receiveFromDB.takeNewUsers().then(newUsers=>{
+        if(req.user){
+         
+            
+            res.status(200)
+            res.render("mainLoged",{posts,page:1,profile:null,user:req.user,newUsers:newUsers})
+        }else{
+            
+            res.status(200)
+            
+            res.render("main",{posts,page:1,profile:null,newUsers:newUsers})
+        }
+            })
     
-    if(req.user){
-        
-        res.status(200)
-        res.render("mainLoged",{posts,page:1,profile:null})
-    }else{
-        res.status(200)
-        res.render("main",{posts,page:1,profile:null})
-    }
-    //TODO: finish settings for user
+    
    })
     
     
@@ -119,11 +129,12 @@ app.get("/main",(req,res)=>{
 })
 
 app.get("/settings",(req,res)=>{
-    const settingsPage = fs.readFileSync(path.join(pathToDir,"html/settingsLoged.html"))
+   // const settingsPage = fs.readFileSync(path.join(pathToDir,"html/settingsLoged.html"))
 
     if(req.user){
         res.status(200)
-        res.end(settingsPage)
+        
+        res.render("settings.ejs",{user:req.user})
     }else{
     res.status(300)
     res.redirect("/main")
@@ -146,21 +157,7 @@ app.get("/createPost",(req,res)=>{
 
 
 
-app.get("/getUser",(req,res)=>{
-if(req.user){
-    
-    res.status(200)
-    res.end(JSON.stringify(req.user))
-}
-else if(req.userId){
 
-}
-else
-res.status(401)
-res.end()
-
-    
-})
 
 
 app.get("/getSavePost",(req,res)=>{
@@ -190,13 +187,17 @@ app.get("/postN:postId",(req,res)=>{
         if(answer){
 
             receiveFromDB.getINamebyId(answer.user_id).then(username=>{
-
+                receiveFromDB.postComments(req.params.postId).then(comments=>{
             const dateObject= new Date(answer.dateOfPost)
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             const date = dateObject.getDate() +' '+ months[dateObject.getMonth()]
-
-            res.render('posts',{data:answer,username:username,date:date})
+                if(req.user){
+                    res.render('posts',{data:answer,username:username,date:date,user:req.user,postId:req.params.postId,comments:comments})
+                }else{
+                    res.render('posts',{data:answer,username:username,date:date,user:null,postId:req.params.postId,comments:comments})
+                }
             
+                })
 
         })
     }else{
@@ -217,15 +218,18 @@ app.get("/page:pageId",(req,res)=>{
     res.redirect("/main")
     }else{
         receiveFromDB.getFourPost(req.params.pageId).then(posts=>{
-            if(req.user){
+            
+                if(req.user){
         
-                res.status(200)
-                res.render("mainLoged",{posts,page:req.params.pageId,profile:null})
-            }else{
-                
-                res.status(200)
-                res.render("main",{posts,page:req.params.pageId,profile:null})
-            }
+                    res.status(200)
+                    res.render("mainLoged",{posts,page:req.params.pageId,profile:null,user:req.user,newUsers:null})
+                }else{
+                    
+                    res.status(200)
+                    res.render("main",{posts,page:req.params.pageId,profile:null,newUsers:null})
+                }
+            
+            
 
         })
         
@@ -240,7 +244,7 @@ app.get("/userProfile:userId/page:pageId",(req,res)=>{
     receiveFromDB.FourPostFromUser(req.params.pageId,req.params.userId).then(posts=>{
         receiveFromDB.userData(req.params.userId).then(profile=>{
             res.status(200)
-        res.render("main.ejs",{posts,page:req.params.pageId,profile:profile})
+        res.render("main.ejs",{posts,page:req.params.pageId,profile:profile,newUsers:null})
 
         })
         
@@ -250,6 +254,10 @@ app.get("/userProfile:userId/page:pageId",(req,res)=>{
     
     
 })
+app.get("/about",(req,res)=>{
+    res.status(200)
+    res.render("about.ejs")
+})
 
 
 //post
@@ -257,16 +265,17 @@ app.post("/login",(req,res)=>{
     const user = req.body
     
     receiveFromDB.getIdByName(user.login).then((id)=>{
-         
+        
         if(id){
         receiveFromDB.passById(id).then((hashSalt)=>{
-            receiveFromDB.getProfileImg(id).then(imgUrl=>{
+            
                 
            const{hashedPassword,salt}= hashSalt
            if(checkPass(user.pas,salt,hashedPassword))
            {
                
-               const{accessToken,refreshToken}= sendRT(id,user.login,imgUrl)
+               const{accessToken,refreshToken}= sendRT(id,user.login)
+               
                 res.cookie("at",accessToken)
                 res.cookie("rt",refreshToken)
                 res.status(200)
@@ -274,7 +283,7 @@ app.post("/login",(req,res)=>{
                
            }else 
            res.send(null)
-        })
+        
         })
     }else res.send(null)
 
@@ -317,6 +326,25 @@ app.post("/createPost",(req,res)=>{
     
 })
 
+app.post("/leaveComment",(req,res)=>{
+    
+if(req.user){
+ sendToDB.storeComment(req.user.id,req.body.postId,req.body.comment,req.body.commentId)
+ res.status(200)
+ res.end("nice")
+}else
+res.status(404)
+res.end(null)
+
+})
+
+app.delete("/deletePost",(req,res)=>{
+    
+   sendToDB.deletePost(req.body.postToDelete)
+   res.status(200)
+   res.end('true')
+})
+
 app.delete("/logout",(req,res)=>{
    
     res.status(200)
@@ -332,10 +360,19 @@ app.patch("/changeData",(req,res)=>{
      switch(req.body.whatNeedChange){
         case"login":
         // add a check for duplicate userName again
-        sendToDB.changeNickname(req.user.id,req.body.data)
-        console.log("we changing login")
-        res.status(200)
-        res.end("true")
+        receiveFromDB.checkNickname(req.body.data).then(username=> {
+            if(username){
+                sendToDB.changeNickname(req.user.id,req.body.data)
+                console.log("we changing login")
+                res.status(200)
+                res.end("true")
+            }
+            else{
+                res.status(400)
+                res.end(null)
+            }
+        })
+      
          break
 
          case"password":

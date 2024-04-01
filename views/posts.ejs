@@ -29,9 +29,77 @@
 
 
     </main>
+    <%if(user){%>
+    <%if(user.id == data.user_id){%>
+      
+      <button class="exit" onclick="deletePost()">this is your post soo... you can delete this</button>
+      <script>
+        const deletePost=()=>{
+          fetch("/deletePost",{
+            method:"DELETE",
+            headers:{"content-type":"application/json"},
+            body:JSON.stringify({
+              postToDelete:Number("<%=data.post_id%>"),
+              
+            })
+          })
+          .then(answer=> answer.text())
+          .then(answer=>{
+            if(answer){
+              goBack()
+            }
+            else
+            alert("something goes wrong")
+          })
 
+        }
+      </script> <br/><br/>
+      <%}%>
+      <textarea id="comment"></textarea> <br> <button onclick="leaveComment()">leave comment</button>
+      <%}%>
+      <h3>comments</h3>
+      <ul style="width: 700px; background-color: beige;">
+        <%if(comments[0]){%>
+          
+          <%for(let i = 0; i < comments.length;i++){%>
+        <li style="display: flex;">
+          <a href="//userProfile:<%=comments[i].user_id%>/page:1">
+          <img width="40px" height="40px" src="<%=comments[i].profile_picture%>">
+          <div>
+            <b><%=comments[i].nickname%></b>
+            <p><%=comments[i].comment%></p>
+          </a>
+          
+          </div>
+        </li>
+        <hr width="90%">
+       <%}}else{%>
+         there are no comments here ...
+
+        <%}%>
+      </ul>
     <script>
-        
+        const leaveComment = () =>{
+          const commentId = Number("<%=comments.length%>")+1
+          console.log(commentId)
+          const comment = document.getElementById("comment").value
+          if(comment){
+          fetch("/leaveComment",{
+            method:"POST",
+            headers:{"content-type":"application/json"},
+            body:JSON.stringify({
+              postId:"<%=postId%>",
+              comment:comment,
+              commentId:commentId
+            })
+
+          }).then(anser=>{
+            location.reload()
+            location.reload()
+          })
+        }
+          else alert("bro your comment empty")
+        }
         const goBack = () =>{
             location.replace("/main")
         }

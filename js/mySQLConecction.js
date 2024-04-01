@@ -22,18 +22,18 @@ const addUser = async (name)=>{
   const id = await lastId() 
 
      pool.query(`
-   INSERT INTO users (user_id,nickname)
-   VALUES(?,?)
-   `,[id,name])
+   INSERT INTO users (user_id,nickname,profile_picture)
+   VALUES(?,?,?)
+   `,[id,name,"https://preview.redd.it/acum3doh0n571.jpg?width=640&crop=smart&auto=webp&s=ba973287783e074d4778e9684fc84e9e6f9a6011"])
 
-   pool.query(`
+   await pool.query(`
    INSERT INTO resreshtokens (user_id)
    VALUES(?)
    `,[id])
-   pool.query(`
+   await pool.query(`
     INSERT INTO save_post(user_id)
     VALUES(?)
-   `[id])
+   `,[id])
    console.log("new user added")
    return id
 }
@@ -222,6 +222,44 @@ const userData = async(userId)=>{
  return data[0][0]
 }
 
+const deletePost = async (postId)=>{
+await pool.query(`
+DELETE FROM posts WHERE post_id = ?
+`,[postId])
+
+}
+
+const takeNewUsers = async() =>{
+  const users = await pool.query(`
+  SELECT *
+  FROM users
+  ORDER BY user_id DESC
+  LIMIT 8
+  `,)
+  
+  return users[0]
+}
+
+const storeComment = async(userId,postId,comment,commentId)=>{
+await pool.query(`
+INSERT INTO comments (post_id,comment,user_id,comm_id)
+VALUES(?, ?, ?,?)
+`,[postId,comment,userId,commentId])
+}
+const postComments = async(postId) =>{
+  
+ const comments = await pool.query(`
+ SELECT comments.comment , users.*
+ FROM comments
+ INNER JOIN users ON comments.user_id = users.user_id
+ WHERE comments.post_id = ?
+ ORDER BY comments.comm_id DESC
+ `,[postId])
+ return comments[0]
+ 
+ 
+}
+
 const sendToDB ={
   addUser,
   addPassword,
@@ -230,7 +268,9 @@ const sendToDB ={
   savePost,
   changeNickname,
   changePassword,
-  changeProfileImg
+  changeProfileImg,
+  deletePost,
+  storeComment
 }
 const receiveFromDB ={
   checkNickname,
@@ -243,6 +283,8 @@ const receiveFromDB ={
   getFourPost,
   getProfileImg,
   FourPostFromUser,
-  userData
+  userData,
+  takeNewUsers,
+  postComments
 }
 module.exports={sendToDB,receiveFromDB}

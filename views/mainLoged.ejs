@@ -15,13 +15,13 @@
         <div style="display:grid;">
             
            <div><button onclick="logout()" class="exit">logout</button></div>
-            <div><button>MyProfile</button></div>
+            <div><button onclick="profile()">MyProfile</button></div>
             <div><button onclick="settings()">Settings</button></div>
         </div>
         <div style="text-align: center;">
             <div id="username"></div>
             
-            <div class="image" ><img  width="70px" height="70px" id="profile" src="https://www.partyrama.co.uk/wp-content/plugins/partyrama-ecommerce-pro/includes/pro-images/prod-img/default/shreks-mini-cardboard-cutout-product-image.jpg"></div>
+            <div class="image" ><img  width="70px" height="70px" id="profile" ></div>
         </div>
       </div>
       
@@ -33,7 +33,27 @@
     <main>
         <hr>
        <hr>
-       
+       <%if(newUsers){%>
+        <div style="width: 100%; height: 0;  position: absolute; background-color: aliceblue; margin-top: 30px; ">
+            
+            <aside class="sideBar">
+                <b >New Users</b>
+             <ul id="users">
+                
+                <%for(let i = 0; i < newUsers.length;i++){%>
+                    <li style=" margin-right: 30%;">
+                        <p><%=newUsers[i].nickname%></p>
+                       <a href="/userProfile<%=newUsers[i].user_id%>/page1">
+                         <img src="<%=newUsers[i].profile_picture%>" width="70px" height="70px" > </a>
+                    </li>
+            <%}%>
+                 
+             </ul>
+            </aside>   
+             </div>
+           
+         <%}%>
+
        <div class="createPostBackGround">
         
         <div class="createPost">
@@ -134,6 +154,9 @@
 
 
         }
+        const profile=()=>{
+            location.href="/userProfile<%=user.id%>/page1"
+        }
         const backPage=()=>{
             const page = '<%=page%>' - 1
 
@@ -143,15 +166,11 @@
         }
         const getUser = ()=>
         {
-            fetch("/getUser",{
-                method:"GET"
-            }).then(answer => answer.text()).then(userData=>{
-                const user = JSON.parse(userData) 
-                console.log(user)
-                document.getElementById("username").innerText= user.login
-                document.getElementById("profile").src = user.imgUrl
+            
+                document.getElementById("username").innerText= '<%=user.login%>'
+                document.getElementById("profile").src = '<%=user.imgUrl%>'
 
-            })
+            
         }
         getUser()
 

@@ -60,7 +60,7 @@
 
 
             <div>delete account</div>
-            <input type="checkbox"> <button class="exit" onclick="alert('bruh, where did you go? i am was lazy... so there`s no function for delete  account')">SURE?</button>
+            <input type="checkbox"> <button class="exit" onclick="alert('bruh, where did you go? i was lazy... so there`s no function for delete  account')">SURE?</button>
         </div>
         </div>
     </main>
@@ -68,18 +68,15 @@
 
 
     <script>
-         const getUser = ()=>
+          const getUser = ()=>
         {
-            fetch("/getUser",{
-                method:"GET"
-            }).then(answer => answer.text()).then(userData=>{
-                const user = JSON.parse(userData) 
-                console.log(user)
-                document.getElementById("username").innerText= user.login
-                document.getElementById("profile").src = user.imgUrl
+            
+                document.getElementById("username").innerText= '<%=user.login%>'
+                document.getElementById("profile").src = '<%=user.imgUrl%>'
 
-            })
+            
         }
+        getUser()
         const logout=()=>{
             fetch("/logout",{
             method:"DELETE"
@@ -174,7 +171,7 @@
         }
        }
 
-getUser()
+
     </script>
 </body>
 </html>
