@@ -1,6 +1,6 @@
 const fs = require("node:fs")
 const express = require("express")
-const https = require("https")
+
 const path = require("path")
 const cookieParser = require("cookie-parser")
 
@@ -32,11 +32,7 @@ const sendRT = (id,login)=>{
 
 
 
-//https options for certificates
-const options = {
-    key: fs.readFileSync(pathToDir+"/cert/localhost.key"),
-    cert: fs.readFileSync(pathToDir+"/cert/localhost.crt")
-}
+
 
 
 
@@ -407,11 +403,11 @@ app.get("*",(req,res)=>{
 })
 
 
-const server = https.createServer(options,app)
 
 
 
-server.listen(3000,()=>{
+
+app.listen(3000,()=>{
     console.log("server work at 3000 port")
 })
 

@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "bootstrap": "^5.3.3",
     "ckeditor4": "^4.24.0",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.1",

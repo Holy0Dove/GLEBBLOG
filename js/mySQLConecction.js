@@ -18,6 +18,7 @@ limit 1
   return rows[0].user_id+1}
 catch{return 1}
 } 
+
 const addUser = async (name)=>{
   const id = await lastId() 
 
@@ -287,4 +288,9 @@ const receiveFromDB ={
   takeNewUsers,
   postComments
 }
+
+lastId().then(answer => {
+  console.log(answer)
+})
+
 module.exports={sendToDB,receiveFromDB}

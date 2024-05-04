@@ -4,16 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gleb Blog</title>
-    <link rel="stylesheet" href="/style.css">
+   <link rel="stylesheet" href="/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
     <header>
         <div class="color">
             <%if (profile){%>
-                <div class="logo"><h1><%=profile.nickname%> profile </h1></div>
-                <img width="70px" height="70px" src="<%=profile.profile_picture%>" class="image">
+                <div class="logo" style="margin-top: 10px;"><h1><%=profile.nickname%> profile </h1></div>
+                <div class="image"><img width="70px" height="70px"  style="object-fit:cover; margin-top: 20px;" src="<%=profile.profile_picture%>" ></div>
                 <%}else{%>
-        <div class="logo"><h1>GLEB BLOG<h1></div>
+        <div class="logo"><h1 >GLEB BLOG<h1></div>
             <%}%>
       <div class="Profile">
         <div>
@@ -31,14 +32,16 @@
     </div>
     
     </header>
+    
     <aside class="popUp" style="display: none;">
         
         <div class="login">
-            <div class="buttons"><button  class="registerButton"  onclick="showRegister()">firstTime?</button> <button class="exit" onclick="closeLogin()">X</button></div>
+            <div class="buttons"><button  class="registerButton"  onclick="showRegister()">firstTime?</button> <button class="exit" onclick="closeLogin()" style="margin-left: 5px;">X</button></div>
             
             <div class="inLogin">
                 <p>nickname</p>
-             <input  class="registerData">
+             <input  class="registerData" >
+             
              <p>password</p>
              <input type="password" class="registerData"> <button class="showRegister , registerButton" onclick="loginInAccount()">submit</button>
              
@@ -51,12 +54,13 @@
         </div>  
     </aside>
 
+
     <main>
         <hr>
        <hr>
        <hr>
     <%if(newUsers){%>
-        <div style="width: 100%; height: 0;  position: absolute; background-color: aliceblue; ">
+        <div class="d-none d-lg-block" style="width: 100%; height: 0;  position: absolute; background-color: aliceblue;" >
             
             <aside class="sideBar">
                 <b >New Users</b>
@@ -66,7 +70,7 @@
                     <li style=" margin-right: 30%;">
                         <p><%=newUsers[i].nickname%></p>
                        <a href="/userProfile<%=newUsers[i].user_id%>/page1">
-                         <img src="<%=newUsers[i].profile_picture%>" width="70px" height="70px" > </a>
+                         <img src="<%=newUsers[i].profile_picture%>" width="70px" height="70px" style="object-fit:cover;" > </a>
                     </li>
             <%}%>
                  
@@ -77,14 +81,14 @@
          <%}%>
 
        
-        <div class="postList">
+        <div class="postList ms-md-0 ms-lg-5 ">
             
             <ul>
                 <%if(posts[0]) {%>
                 <li>
                     <div class="post">
                         <a href="/postN<%=posts[0].post_id%>">
-                       <img style="height: 100%;" src=<%= posts[0].image_url %>> 
+                       <img style="object-fit:cover;" height="100%" width="100%" src=<%= posts[0].image_url %>> 
                     </a>
                     </div>
 
@@ -99,7 +103,7 @@
                 <li>
                     <div class="post">
                         <a href="/postN<%=posts[1].post_id%>">
-                       <img style="height: 100%;" src=<%= posts[1].image_url %>> 
+                       <img style="object-fit:cover;" height="100%" width="100%" src=<%= posts[1].image_url %>> 
                     </a>
                     </div>
 
@@ -114,7 +118,7 @@
                 <li>
                     <div class="post">
                         <a href="/postN<%=posts[2].post_id%>">
-                       <img style="height: 100%;" src=<%= posts[2].image_url %>> 
+                       <img style="object-fit:cover;" height="100%" width="100%" src=<%= posts[2].image_url %>> 
                     </a>
                     </div>
 
@@ -127,13 +131,15 @@
 
                 <%if(posts[3]) {%>
                 <li>
+                    <a href="/postN<%=posts[3].post_id%>">
                     <div class="post">
-                        <a href="/postN<%=posts[3].post_id%>">
-                       <img style="height: 100%;" src=<%= posts[3].image_url %>> 
-                    </a>
+                        
+                       <img style="object-fit:cover;" height="100%" width="100%"  src=<%= posts[3].image_url %>> 
+                    
                     </div>
-
+                </a>
                     <p> "<%=posts[3].post_name %>" </p>
+                
                     <hr align="left" class="posthr">
                 </li>
                 <%}%>
@@ -151,16 +157,16 @@
     <%if(posts[3]) {%>
         <%if(page>1){%>
 
-        <button style="width: 500px; margin-left: 132px;" onclick="backPage()">BACK</button>
+        <button style="width: 30%; margin-left: 60px;" onclick="backPage()">BACK</button>
         <%}%>
-        <button onclick="nextPage()" style="width: 500px; margin-left: 132px;">NEXT</button>
+        <button onclick="nextPage()" style="width: 30%; margin-left: 60px;">NEXT</button>
 
         <%} else{ %>
 
             <p style="margin-left: 132px;">here no more post ;(</p>
             <%if(page>1){%>
 
-                <button style="width: 500px; margin-left: 132px;" onclick="backPage()">BACK</button>
+                <button style="width: 500px; margin-left: 40px;"onclick="backPage()">BACK</button>
                 <%}%>
         <%}%>
             
@@ -176,10 +182,17 @@
         }
         const showRegister =()=>{
             const toHide = document.getElementsByClassName("showRegister")
-           
+            const boxlogin = document.getElementsByClassName("login")
             for(let i =0 ; i<toHide.length; i++){
                 
-                toHide[i].style.display ? toHide[i].style.display="" : toHide[i].style.display ="none"
+                if(toHide[i].style.display) 
+                 {
+                    toHide[i].style.display=""
+                    boxlogin[0].style.height = "280px"
+                } 
+                
+                else { toHide[i].style.display ="none" 
+                boxlogin[0].style.height = "200px"}
             }
         }
         const register = ()=>{
@@ -258,6 +271,8 @@
 
         }
 
+        
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
