@@ -3,10 +3,15 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Gleb Blog</title>
+        <title>settings</title>
         <link rel="stylesheet" href="style.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
+        <link
+        rel="icon"
+        href=
+    "https://static.vecteezy.com/system/resources/previews/036/420/338/original/ai-generated-rainbow-stag-beetle-isolated-on-transparent-background-free-png.png"
+        type="image/x-icon"
+    />
     </head>
 <body>
 
@@ -19,14 +24,15 @@
       <div class="Profile">
         <div style="display:grid;">
             
-           <div><button onclick="logout()" class="exit">logout</button></div>
-            <div><button>MyProfile</button></div>
+           
+          
             <div><button onclick="goBack()">GoBack?</button></div>
+            <div><button onclick="logout()" class="exit">logout</button></div>
         </div>
         <div style="text-align: center;">
             <div id="username"></div>
             
-            <div class="image"><img width="70px" height="70px"  style="object-fit:cover;" id="profile"></div>
+            <div class="image" ><a href="/userProfile<%=user.id%>/page1"><img style="object-fit: cover;" width="70px" height="70px" id="profile" ></a></div>
         </div>
       </div>
       
@@ -34,7 +40,7 @@
     
     </header>
 
-
+    
 
     <main>
         <div class="settingsBackground">
@@ -70,6 +76,7 @@
 
 
     <script>
+       
           const getUser = ()=>
         {
             

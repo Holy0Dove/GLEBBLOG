@@ -6,24 +6,44 @@
     <title>Gleb Blog</title>
    <link rel="stylesheet" href="/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link
+    rel="icon"
+    href=
+"https://static.vecteezy.com/system/resources/previews/036/420/338/original/ai-generated-rainbow-stag-beetle-isolated-on-transparent-background-free-png.png"
+    type="image/x-icon"
+/>
 </head>
 <body>
     <header>
         <div class="color">
-            <%if (profile){%>
+
+            <%if (profile ){%>
                 <div class="logo" style="margin-top: 10px;"><h1><%=profile.nickname%> profile </h1></div>
                 <div class="image"><img width="70px" height="70px"  style="object-fit:cover; margin-top: 20px;" src="<%=profile.profile_picture%>" ></div>
-                <%}else{%>
+                <%if (user && user.id != profile.user_id){%>
+
+                    <%if (isSubd){%>
+                        <div style="margin-top: 50px; margin-left: 10px;"><button class="exit" onclick="changeFollow('<%=profile.user_id%>')" >unfollow</button></div> 
+                        <%}else{%>
+                    <!-- ADD FOLLOW FUNCTION PLEASE YOU LITTLE BAKED SHIT AND STYLES -->
+                <div style="margin-top: 50px;margin-left: 10px;"><button class="registerButton" onclick="changeFollow('<%=profile.user_id%>'); ">follow this dude?</button></div> 
+                
+
+
+                <%}}}else{%>
         <div class="logo"><h1 >GLEB BLOG<h1></div>
             <%}%>
       <div class="Profile">
         <div>
             <%if(profile){%>
                 <button onclick="goBack()">mainPage</button>
+                
             <%}else{%>
             <button onclick="closeLogin()">login</button>
-            <%}%>
+            
+            <%}%> 
             <button onclick="location.replace('/about')">about?</button>
+
         </div>
         <!-- <div class="image" ><img  width="70px" src="https://www.partyrama.co.uk/wp-content/plugins/partyrama-ecommerce-pro/includes/pro-images/prod-img/default/shreks-mini-cardboard-cutout-product-image.jpg"></div> -->
 
@@ -53,6 +73,51 @@
             </div>
         </div>  
     </aside>
+
+
+
+    <!-- port this news section to mainLoged and fn for this too-->
+    <!-- <aside class="popUp" style="display: none;">
+
+
+        <div class="login" style=" width: 250px ; height: auto;  margin-top: 60px; text-align: center; background-color:darkgray; ">
+            <div id="carouselExampleIndicators" class="carousel slide">
+               
+                <div class="carousel-inner">
+                    news <hr>
+                  <div class="carousel-item active" >
+
+                    <p>herobrine deleted</p><hr>
+                            <p>added news section </p>
+                            <hr>
+                            1
+                  </div>
+                  <div class="carousel-item" >
+                   <p>fixed some bugs with screen sizes</p> 
+                   <hr>
+                   2
+                  </div>
+                   <div class="carousel-item">
+                    <img src="..." class="d-block w-100" alt="3">
+                  </div>  
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Next</span>
+                </button>
+                
+              </div>
+              
+        </div>
+       
+    </aside> -->
+<!-- port this news section to mainLoged -->
+
+
 
 
     <main>
@@ -86,14 +151,18 @@
             <ul>
                 <%if(posts[0]) {%>
                 <li>
-                    <div class="post">
+                    
+                    <div class="col-11 col-lg-12 post">
+                    
+                        
                         <a href="/postN<%=posts[0].post_id%>">
                        <img style="object-fit:cover;" height="100%" width="100%" src=<%= posts[0].image_url %>> 
                     </a>
+                    
                     </div>
 
                     <p> "<%=posts[0].post_name %>" </p>
-                    <hr align="left" class="posthr">
+                    <hr align="left" class="col-11 col-lg-12 posthr">
                     
                 </li>
                 <%}%>
@@ -101,14 +170,14 @@
 
                 <%if(posts[1]) {%>
                 <li>
-                    <div class="post">
+                    <div class="col-11 col-lg-12 post">
                         <a href="/postN<%=posts[1].post_id%>">
                        <img style="object-fit:cover;" height="100%" width="100%" src=<%= posts[1].image_url %>> 
                     </a>
                     </div>
 
                     <p> "<%=posts[1].post_name %>" </p>
-                    <hr align="left" class="posthr">
+                    <hr align="left" class="col-11 col-lg-12 posthr">
                     
                 </li>
                 <%}%>
@@ -116,14 +185,14 @@
 
                 <%if(posts[2]) {%>
                 <li>
-                    <div class="post">
+                    <div class="col-11 col-lg-12 post">
                         <a href="/postN<%=posts[2].post_id%>">
                        <img style="object-fit:cover;" height="100%" width="100%" src=<%= posts[2].image_url %>> 
                     </a>
                     </div>
 
                     <p> "<%=posts[2].post_name %>" </p>
-                    <hr align="left" class="posthr">
+                    <hr align="left" class="col-11 col-lg-12 posthr">
                     </a>
                 </li>
                 <%}%>
@@ -132,7 +201,7 @@
                 <%if(posts[3]) {%>
                 <li>
                     <a href="/postN<%=posts[3].post_id%>">
-                    <div class="post">
+                    <div class="col-11 col-lg-12 post">
                         
                        <img style="object-fit:cover;" height="100%" width="100%"  src=<%= posts[3].image_url %>> 
                     
@@ -140,7 +209,7 @@
                 </a>
                     <p> "<%=posts[3].post_name %>" </p>
                 
-                    <hr align="left" class="posthr">
+                    <hr align="left" class="col-11 col-lg-12 posthr">
                 </li>
                 <%}%>
 
@@ -151,8 +220,6 @@
         
     </main>
     
-
-   
     
     <%if(posts[3]) {%>
         <%if(page>1){%>
@@ -171,6 +238,7 @@
         <%}%>
             
     <script>
+        
         const goBack = () =>{
             location.replace("/main")
         }
@@ -179,6 +247,13 @@
             
             const style = document.getElementsByClassName("popUp")[0].style
             style.display ? style.display ="" : style.display ="none"
+            document.getElementsByClassName("popUp")[1].style.display="none"
+        }
+        const closeNews =()=>{
+            
+            const style = document.getElementsByClassName("popUp")[1].style
+            style.display ? style.display ="" : style.display ="none"
+            document.getElementsByClassName("popUp")[0].style.display="none"
         }
         const showRegister =()=>{
             const toHide = document.getElementsByClassName("showRegister")
@@ -195,6 +270,20 @@
                 boxlogin[0].style.height = "200px"}
             }
         }
+        const changeFollow =(creatorID)=>{
+            
+            fetch("/subscribeManager",{
+                method:"POST",
+                headers:{"content-type":"application/json"},
+                body:JSON.stringify({
+                    creatorID:creatorID,
+                })
+            }).then(answer => answer ? location.reload() : alert("some problemos mucacho!"))
+
+        }
+
+
+
         const register = ()=>{
            const userLogin = document.getElementsByClassName("registerData")
             const login = userLogin[0].value

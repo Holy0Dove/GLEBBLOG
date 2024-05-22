@@ -35,7 +35,7 @@ const addUser = async (name)=>{
     INSERT INTO save_post(user_id)
     VALUES(?)
    `,[id])
-   console.log("new user added")
+   
    return id
 }
 
@@ -120,7 +120,7 @@ WHERE user_id = ?
 
 const checkDatabaseToken = async (rt)=>{
   const token = await pool.query(`
-  SELECT RT FROM resreshTokens
+  SELECT RT FROM resreshtokens
   where RT = ?
   `,[rt])
 
@@ -138,9 +138,9 @@ limit 1
 catch{return 1}
 }
 
-const makePost = async (userId,post,postName,imageUrl)=>{
+const makePost = async (userId,post,postName,imageUrl,username)=>{
 postId = await getPostId()
-
+await sendNotification(userId,username+" just posted a "+postName,"/postN"+postId)
   await pool.query(`
   INSERT INTO posts (user_id,post_id,textContent,dateOfPost,post_name,image_url)
   VALUES(?,?,?,NOW(),?,?)
@@ -216,7 +216,7 @@ const getProfileImg= async(userId)=>{
 
 const userData = async(userId)=>{
   const data = await pool.query(`
-  SELECT nickname, profile_picture
+  SELECT *
   FROM users
   WHERE user_id = ?
   `,[userId])
@@ -246,6 +246,7 @@ await pool.query(`
 INSERT INTO comments (post_id,comment,user_id,comm_id)
 VALUES(?, ?, ?,?)
 `,[postId,comment,userId,commentId])
+//add function for notif if someone leave comment
 }
 const postComments = async(postId) =>{
   
@@ -260,6 +261,107 @@ const postComments = async(postId) =>{
  
  
 }
+const isSubd = async (userID,creatorID)=>{
+  const sub = await pool.query(`
+  SELECT * 
+  FROM subs
+  where user_id = ? and creator_id = ?
+  `,[userID,creatorID])
+  return sub[0][0]
+}
+const changeSubscsribe = async(userID,creatorID) =>{
+
+const sub = await isSubd(userID,creatorID)
+
+
+
+if(sub){
+  await pool.query(`
+DELETE FROM subs
+WHERE user_id = ? and creator_id = ?  
+  `,[userID,creatorID])
+  return(true)
+}
+
+
+else{
+await pool.query(`
+INSERT INTO subs (user_id,creator_id)
+VALUES(?,?)
+`,[userID,creatorID])
+return(true)
+}
+
+}
+
+
+
+const yourFollow = async(userID) => { //for checking who you follow
+  const follows = await pool.query(`
+  select creator_id 
+  from subs
+  where user_id = ? 
+  `,[userID])
+ return follows[0]
+}
+const yourSubs = async(userID) => {//for checking who sub on you
+  const subs = await pool.query(`
+  select user_id 
+  from subs
+  where creator_id = ? 
+  `,[userID])
+return subs[0]
+
+}
+
+
+
+
+const sendNotification = async(userID,message,link,comment) => {
+
+if(comment){
+await pool.query(`
+INSERT INTO notifications(user_id,message,link)
+  VALUES (?,?,?)
+`,[userID,message,link])
+
+}else{
+const subs = await yourSubs(userID)
+if(subs[0]){
+  subs.forEach(async ell=>{
+  await pool.query(`
+  INSERT INTO notifications(user_id,message,link)
+  VALUES (?,?,?)
+  `,[ell.user_id,message,link])
+
+})
+}}
+}
+
+
+const getYourNotification = async(userID)=>{
+const notification = await pool.query(`
+select * from notifications 
+where user_id = ? 
+`,[userID])
+return notification[0].reverse()
+}
+
+const changeReadNotification = async(userID)=>{
+  await pool.query(`
+  UPDATE notifications 
+  SET \`read\` = ? 
+  WHERE user_id = ?
+  `,[true,userID])
+}
+
+const deleteNotification = async()=>{
+  await pool.query(`
+  DELETE FROM notifications
+  WHERE \`read\` = 1
+  `)
+}
+
 
 const sendToDB ={
   addUser,
@@ -271,7 +373,11 @@ const sendToDB ={
   changePassword,
   changeProfileImg,
   deletePost,
-  storeComment
+  storeComment,
+  changeSubscsribe,
+  sendNotification,
+  deleteNotification,
+  changeReadNotification
 }
 const receiveFromDB ={
   checkNickname,
@@ -286,11 +392,14 @@ const receiveFromDB ={
   FourPostFromUser,
   userData,
   takeNewUsers,
-  postComments
+  postComments,
+  isSubd,
+  yourSubs,
+  yourFollow,
+  getYourNotification
 }
 
-lastId().then(answer => {
-  console.log(answer)
-})
+
+
 
 module.exports={sendToDB,receiveFromDB}

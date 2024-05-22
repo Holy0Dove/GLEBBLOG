@@ -1,4 +1,4 @@
-const fs = require("node:fs")
+const fs = require("fs")
 const express = require("express")
 
 const path = require("path")
@@ -30,6 +30,13 @@ const sendRT = (id,login)=>{
 }
 
 
+const deleteReadNotif = ()=>{
+    sendToDB.deleteNotification()
+    console.log("deleted")
+    setTimeout(deleteReadNotif,21600000)
+}
+deleteReadNotif()
+
 
 
 
@@ -46,7 +53,7 @@ app.use(express.static(pathToDir+"/html/"))
 
 
 
-app.use((req,res,next)=>{ //try check cookie and send login if have// middleware
+app.use((req,res,next)=>{ //middleware
 const cookie = req.cookies
 let accessToken = checkAccessToken(cookie.at)
 
@@ -66,22 +73,17 @@ if(accessToken){
             res.cookie("at",accessTokenCoded)
             req.user=checkAccessToken(accessTokenCoded)
             receiveFromDB.getProfileImg(req.user.id).then(img => {req.user.imgUrl=img
-                next()
+                
             })
         }
-        
+        next()
     })
 
     
 }else{
     req.user=null
     next()
-}
-
-
-
-
-})
+}})
 
 
 
@@ -103,11 +105,14 @@ app.get("/main",(req,res)=>{
     
     receiveFromDB.getFourPost(1).then(posts=>{
     receiveFromDB.takeNewUsers().then(newUsers=>{
+    
         if(req.user){
          
-            
+            receiveFromDB.getYourNotification(req.user.id).then(notif =>{
             res.status(200)
-            res.render("mainLoged",{posts,page:1,profile:null,user:req.user,newUsers:newUsers})
+            
+            res.render("mainLoged",{posts,page:1,profile:null,user:req.user,newUsers:newUsers,notification:notif})
+            })
         }else{
             
             res.status(200)
@@ -214,18 +219,18 @@ app.get("/page:pageId",(req,res)=>{
     res.redirect("/main")
     }else{
         receiveFromDB.getFourPost(req.params.pageId).then(posts=>{
-            
+            receiveFromDB.getYourNotification(req.user.id).then(notif =>{
                 if(req.user){
         
                     res.status(200)
-                    res.render("mainLoged",{posts,page:req.params.pageId,profile:null,user:req.user,newUsers:null})
+                    res.render("mainLoged",{posts,page:req.params.pageId,profile:null,user:req.user,newUsers:null,notification:notif})
                 }else{
                     
                     res.status(200)
                     res.render("main",{posts,page:req.params.pageId,profile:null,newUsers:null})
                 }
             
-            
+            })
 
         })
         
@@ -240,7 +245,14 @@ app.get("/userProfile:userId/page:pageId",(req,res)=>{
     receiveFromDB.FourPostFromUser(req.params.pageId,req.params.userId).then(posts=>{
         receiveFromDB.userData(req.params.userId).then(profile=>{
             res.status(200)
-        res.render("main.ejs",{posts,page:req.params.pageId,profile:profile,newUsers:null})
+            if(req.user){
+            receiveFromDB.isSubd(req.user.id,profile.user_id).then(sub => {
+                res.render("main.ejs",{posts,page:req.params.pageId,profile:profile,user:req.user,newUsers:null,isSubd:sub})
+            })
+            }else{
+                res.render("main.ejs",{posts,page:req.params.pageId,profile:profile,user:req.user,newUsers:null,isSubd:false})
+            }
+        
 
         })
         
@@ -271,8 +283,8 @@ app.post("/login",(req,res)=>{
            {
                
                const{accessToken,refreshToken}= sendRT(id,user.login)
-               
-                res.cookie("at",accessToken)
+               const expirationTime = new Date(Date.now() + 60000);
+                res.cookie("at",accessToken,expirationTime)
                 res.cookie("rt",refreshToken)
                 res.status(200)
                 res.send(true)
@@ -312,8 +324,9 @@ app.post("/createPost",(req,res)=>{
     
     const userId =req.user.id
     if(postData.postOrSave == "post"){
-        sendToDB.makePost(userId,postData.post,postData.name,postData.image)
+        sendToDB.makePost(userId,postData.post,postData.name,postData.image,req.user.login)
         sendToDB.savePost(userId,null)
+        
 
     }else if(postData.postOrSave == "save"){
         sendToDB.savePost(userId,postData.post)
@@ -326,6 +339,8 @@ app.post("/leaveComment",(req,res)=>{
     
 if(req.user){
  sendToDB.storeComment(req.user.id,req.body.postId,req.body.comment,req.body.commentId)
+ if(req.user.id == req.body.authorId){}else{
+ sendToDB.sendNotification(req.body.authorId,req.user.login + " just left a comment ","/postN"+req.body.postId,true)}
  res.status(200)
  res.end("nice")
 }else
@@ -333,6 +348,20 @@ res.status(404)
 res.end(null)
 
 })
+
+
+app.post("/subscribeManager",(req,res)=>{
+    if(req.user){
+       
+       sendToDB.changeSubscsribe(req.user.id,req.body.creatorID)
+        res.status(200)
+        res.end("verrwry WelllLLLlL1L }:] ")
+    }else
+    res.status(404)
+    res.end(null)
+    
+    })
+
 
 app.delete("/deletePost",(req,res)=>{
     
@@ -395,6 +424,13 @@ app.patch("/changeData",(req,res)=>{
     
     
 
+})
+
+app.patch("/readNotif",(req,res)=>{
+    console.log("readed")
+    sendToDB.changeReadNotification(req.user.id)
+    res.status(200)
+    res.end()
 })
 
 app.get("*",(req,res)=>{
