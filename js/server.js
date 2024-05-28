@@ -56,27 +56,7 @@ app.use(cookieParser())
 app.use(express.static(pathToDir+"/html/"))
 
 
-//all ws stuff i dont give a fuck what is going on here
 
-// const wss = new ws.WebSocketServer({noServer:true})
-
-
-// wss.on('connection', (ws) => {
-//     console.log('New WebSocket client connected');
-
-//     ws.on('message', (message) => {
-//         console.log(`Received: ${message}`);
-//         ws.send(`Hello, you sent -> ${message}`);
-//     });
-
-//     ws.on('close', () => {
-//         console.log('WebSocket client disconnected');
-//     });
-// });
-
-// i gona be honest... 
-// my brain is kinda rotten after baked so i need some time to come back in normal
-//sorry
 
 
 app.use((req,res,next)=>{ //middleware
@@ -126,8 +106,7 @@ app.get("/",(req,res)=>{
 
 app.get("/main",(req,res)=>{
     
-    // const mainPage = fs.readFileSync(path.join( pathToDir,"html/main.html"))
-    // const logedMainPage = fs.readFileSync(path.join(pathToDir,"html/mainLoged.html"))
+    
     
     receiveFromDB.getFourPost(1).then(posts=>{
     receiveFromDB.takeNewUsers().then(newUsers=>{
@@ -156,8 +135,7 @@ app.get("/main",(req,res)=>{
 })
 
 app.get("/settings",(req,res)=>{
-   // const settingsPage = fs.readFileSync(path.join(pathToDir,"html/settingsLoged.html"))
-
+  
     if(req.user){
         res.status(200)
         
@@ -411,11 +389,11 @@ app.delete("/logout",(req,res)=>{
 })
 
 app.patch("/changeData",(req,res)=>{
-     //TODO: add all changed data and update mySql for all stuff
+    
      
      switch(req.body.whatNeedChange){
         case"login":
-        // add a check for duplicate userName again
+        
         receiveFromDB.checkNickname(req.body.data).then(username=> {
             if(username){
                 sendToDB.changeNickname(req.user.id,req.body.data)
