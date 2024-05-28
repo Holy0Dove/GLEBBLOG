@@ -362,6 +362,45 @@ const deleteNotification = async()=>{
   `)
 }
 
+const searchBar = async(suggest)=>{
+  
+  if(suggest){
+  const users = (await pool.query(`
+  SELECT * FROM users
+  WHERE nickname like ?
+  
+
+`,[`%${suggest}%`]))[0]
+
+ const posts = (await pool.query(`
+  SELECT * FROM posts
+WHERE post_name like ?
+
+
+`,[`%${suggest}%`]))[0]
+
+return {users,posts} }
+else {
+  
+    const users = (await pool.query(`
+    SELECT * FROM users
+    order by user_id DESC
+
+  `))[0]
+  
+   const posts = (await pool.query(`
+    SELECT * FROM posts
+    order by post_id DESC
+  
+  
+  
+  `))[0]
+  
+  return {users,posts}
+}
+}
+
+
 
 const sendToDB ={
   addUser,
@@ -396,7 +435,8 @@ const receiveFromDB ={
   isSubd,
   yourSubs,
   yourFollow,
-  getYourNotification
+  getYourNotification,
+  searchBar
 }
 
 

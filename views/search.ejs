@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>search somewere</title>
+       <link rel="stylesheet" href="/style.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <link
+        rel="icon"
+        href=
+    "https://static.vecteezy.com/system/resources/previews/036/420/338/original/ai-generated-rainbow-stag-beetle-isolated-on-transparent-background-free-png.png"
+        type="image/x-icon"
+    />
+    </head>
+<body>
+    <header><div style="padding-top: 10px;">
+        <div class="color">
+          
+        <div class="logo"><h1 >GLEB BLOG<h1></div>
+           
+      <div class="Profile">
+        <div>
+            
+                <button onclick="goBack()">mainPage</button>         
+    
+        </div>
+
+      </div>
+      
+    </div>
+</div>
+    </header>
+
+    <main>
+        <hr>
+        <hr>
+        <hr>
+        <div class="ms-md-0 ms-lg-5 searchBar">
+            <input type="text" id="wsInput" onchange="openSocket()">
+            <button id="ws" onclick="openSocket()">search</button>
+            <ul id="suggest">
+             
+            </ul>
+     
+            <script>
+             let socket;
+             let data = null;
+             let round = 0;
+     
+             const initializeWebSocket = () => {
+                 socket = new WebSocket("ws://localhost:4000");
+     
+                 socket.onopen = () => {
+                     console.log('WebSocket connection opened.');
+                 };
+                 socket.onmessage = (res) =>{
+                     const answer = JSON.parse(res.data)
+                     document.getElementById('suggest').innerHTML = ''
+                    
+     
+                     for(let i =0;i < answer.users.length;i++){
+                         const user = answer.users[i];
+                        const link = document.createElement('a')
+                        link.href = `/userProfile${user.user_id}/page1`
+                        const li = document.createElement('li')
+                        const img = document.createElement('img')
+                        img.src = user.profile_picture
+                        img.style='width:30px; height:30px; object-fit:cover;'
+                        const nickname = document.createTextNode(user.nickname)
+                        const hr = document.createElement('hr')
+                        hr.style = 'width:200px'
+                       
+                        li.appendChild(img)
+                        li.appendChild(nickname)
+                        li.appendChild(hr)
+                        
+                        link.appendChild(li)
+                        document.getElementById('suggest').appendChild(link)
+                     }
+                     for(let i =0;i < answer.posts.length;i++){
+                         const post = answer.posts[i];
+                        const link = document.createElement('a')
+                        link.href = `/postN${post.post_id}`
+                        const li = document.createElement('li')
+                        const nickname = document.createTextNode(`post: ${post.post_name}`)
+
+                        const hr = document.createElement('hr')
+                        hr.style = 'width:200px'
+
+                        li.appendChild(nickname)
+                        li.appendChild(hr)
+                        link.appendChild(li)
+                        
+                        document.getElementById('suggest').appendChild(link)
+                     }
+                 }
+                 socket.onerror = (error) => {
+                     console.error('WebSocket error:', error);
+                 };
+     
+                 socket.onclose = (event) => {
+                     console.log('WebSocket connection closed:', event);
+                 };
+             };
+     
+             const openSocket = async () => {
+                 if (!socket || socket.readyState !== WebSocket.OPEN) {
+                     console.log('Opening new WebSocket connection.');
+                     initializeWebSocket();
+                     // Wait for the WebSocket connection to open
+                     await new Promise(resolve => {
+                         socket.onopen = () => {
+                             console.log('WebSocket connection opened.');
+                             resolve();
+                         };
+                     });
+                 }
+     
+                 
+     
+                 
+                   
+                     data = document.getElementById("wsInput").value;
+                     sendMessage(data);
+                     
+                 
+             };
+     
+             const sendMessage = (message) => {
+                 if (socket.readyState === WebSocket.OPEN) {
+                     socket.send(JSON.stringify(message));
+                    
+                 } else {
+                     console.error('WebSocket is not open. Unable to send message.');
+                 }
+             };
+     
+         </script>
+            </div>
+
+    </main>
+
+
+
+
+
+</body>
+<script>
+ const goBack = () =>{
+            location.replace("/main")
+        }
+        
+
+</script>
+</html>

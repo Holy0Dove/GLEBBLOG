@@ -14,7 +14,7 @@
 />
 </head>
 <body>
-    <header >
+    <header > <div style="padding-top: 10px;">
         <div class="color">
         <div class="logo"><h1>GLEB BLOG LOGED<h1></div>
 
@@ -42,7 +42,7 @@
       </div>
       
     </div>
-    
+</div>
     </header>
    
     <aside class="popUp" style="display: none;">
@@ -123,6 +123,134 @@
             <button onclick="createPost()">create post</button>
         </div>
     </div>
+
+
+    <div class="ms-md-0 ms-lg-5 searchBar">
+        <input type="text" id="wsInput" onchange="openSocket()">
+        <button id="ws" onclick="openSocket()">search</button>
+        <ul id="suggest">
+         
+        </ul>
+ 
+        <script>
+         let socket;
+         let data = null;
+         let round = 0;
+ 
+         const initializeWebSocket = () => {
+             socket = new WebSocket("ws://localhost:4000");
+ 
+             socket.onopen = () => {
+                 console.log('WebSocket connection opened.');
+             };
+             socket.onmessage = (res) =>{
+                 const answer = JSON.parse(res.data)
+                 document.getElementById('suggest').innerHTML = ''
+                 let userRounds = 0
+ 
+ 
+               if( answer.users.length > 4) 
+               { userRounds = 4 } 
+               else
+               { userRounds = answer.users.length}
+ 
+ 
+                 
+                 for(let i =0;i < userRounds;i++){
+                     const user = answer.users[i];
+                    const link = document.createElement('a')
+                    link.href = `/userProfile${user.user_id}/page1`
+                    const li = document.createElement('li')
+                    const img = document.createElement('img')
+                    img.src = user.profile_picture
+                    img.style='width:30px; height:30px; object-fit:cover;'
+                    const nickname = document.createTextNode(user.nickname)
+                   
+                    li.appendChild(img)
+                    li.appendChild(nickname)
+                   
+                    
+                    link.appendChild(li)
+                    document.getElementById('suggest').appendChild(link)
+                 }
+ 
+                 let postRounds = 0
+              if( answer.posts.length > 4)
+              { postRounds = 4 }
+              else
+              { postRounds = answer.posts.length}
+ 
+ 
+              for(let i =0;i < postRounds;i++){
+                          const post = answer.posts[i];
+                         const link = document.createElement('a')
+                         link.href = `/postN${post.post_id}`
+                         const li = document.createElement('li')
+                         const nickname = document.createTextNode(`post: ${post.post_name}`)
+                         li.appendChild(nickname)
+                         link.appendChild(li)
+                         document.getElementById('suggest').appendChild(link)
+                      }
+ 
+ 
+                 if (answer.users.length > 4 || answer.posts.length > 4){
+                    const link = document.createElement('a')
+                    const li = document.createElement('li')
+                     link.href = "/search"
+                     const text = document.createTextNode("more...")
+                     li.appendChild(text)
+                     link.appendChild(li)
+                     document.getElementById('suggest').appendChild(link)
+                 }
+ 
+ 
+             }
+             socket.onerror = (error) => {
+                 console.error('WebSocket error:', error);
+             };
+ 
+             socket.onclose = (event) => {
+                 console.log('WebSocket connection closed:', event);
+             };
+         };
+ 
+         const openSocket = async () => {
+             if (!socket || socket.readyState !== WebSocket.OPEN) {
+                 console.log('Opening new WebSocket connection.');
+                 initializeWebSocket();
+                 // Wait for the WebSocket connection to open
+                 await new Promise(resolve => {
+                     socket.onopen = () => {
+                         console.log('WebSocket connection opened.');
+                         resolve();
+                     };
+                 });
+             }
+ 
+             
+ 
+             
+               
+                 data = document.getElementById("wsInput").value;
+                 sendMessage(data);
+                 
+             
+         };
+ 
+         const sendMessage = (message) => {
+             if (socket.readyState === WebSocket.OPEN) {
+                 socket.send(JSON.stringify(message));
+                
+             } else {
+                 console.error('WebSocket is not open. Unable to send message.');
+             }
+         };
+ 
+     </script>
+        </div>
+
+
+
     <div class="postList ms-md-0 ms-lg-5 ">
             
         <ul>

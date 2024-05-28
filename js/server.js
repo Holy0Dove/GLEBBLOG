@@ -5,7 +5,11 @@ const path = require("path")
 const cookieParser = require("cookie-parser")
 
 
+//ws stuff
 
+const http = require("http")
+
+ 
 
 //files
 const{hashPassword,checkPass} = require("./password.js")
@@ -44,6 +48,7 @@ deleteReadNotif()
 
 
 const app = express()
+
 app.set('view engine','ejs')
 app.set('views', path.join(pathToDir,"/views"))
 app.use(express.json())
@@ -51,6 +56,27 @@ app.use(cookieParser())
 app.use(express.static(pathToDir+"/html/"))
 
 
+//all ws stuff i dont give a fuck what is going on here
+
+// const wss = new ws.WebSocketServer({noServer:true})
+
+
+// wss.on('connection', (ws) => {
+//     console.log('New WebSocket client connected');
+
+//     ws.on('message', (message) => {
+//         console.log(`Received: ${message}`);
+//         ws.send(`Hello, you sent -> ${message}`);
+//     });
+
+//     ws.on('close', () => {
+//         console.log('WebSocket client disconnected');
+//     });
+// });
+
+// i gona be honest... 
+// my brain is kinda rotten after baked so i need some time to come back in normal
+//sorry
 
 
 app.use((req,res,next)=>{ //middleware
@@ -219,18 +245,18 @@ app.get("/page:pageId",(req,res)=>{
     res.redirect("/main")
     }else{
         receiveFromDB.getFourPost(req.params.pageId).then(posts=>{
-            receiveFromDB.getYourNotification(req.user.id).then(notif =>{
+            
                 if(req.user){
-        
+                    receiveFromDB.getYourNotification(req.user.id).then(notif =>{
                     res.status(200)
-                    res.render("mainLoged",{posts,page:req.params.pageId,profile:null,user:req.user,newUsers:null,notification:notif})
+                    res.render("mainLoged",{posts,page:req.params.pageId,profile:null,user:req.user,newUsers:null,notification:notif})})
                 }else{
                     
                     res.status(200)
                     res.render("main",{posts,page:req.params.pageId,profile:null,newUsers:null})
                 }
             
-            })
+            
 
         })
         
@@ -244,16 +270,17 @@ app.get("/userProfile:userId/page:pageId",(req,res)=>{
     
     receiveFromDB.FourPostFromUser(req.params.pageId,req.params.userId).then(posts=>{
         receiveFromDB.userData(req.params.userId).then(profile=>{
+            receiveFromDB.yourSubs(profile.user_id).then(followers=>{
             res.status(200)
             if(req.user){
             receiveFromDB.isSubd(req.user.id,profile.user_id).then(sub => {
-                res.render("main.ejs",{posts,page:req.params.pageId,profile:profile,user:req.user,newUsers:null,isSubd:sub})
+                res.render("main.ejs",{posts,page:req.params.pageId,profile:profile,user:req.user,newUsers:null,isSubd:sub,followers:followers})
             })
             }else{
-                res.render("main.ejs",{posts,page:req.params.pageId,profile:profile,user:req.user,newUsers:null,isSubd:false})
+                res.render("main.ejs",{posts,page:req.params.pageId,profile:profile,user:req.user,newUsers:null,isSubd:false,followers:followers})
             }
         
-
+        })
         })
         
         
@@ -267,6 +294,10 @@ app.get("/about",(req,res)=>{
     res.render("about.ejs")
 })
 
+app.get('/search',(req,res)=>{
+    res.status(200)
+    res.render("search.ejs")
+})
 
 //post
 app.post("/login",(req,res)=>{
