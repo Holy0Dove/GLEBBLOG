@@ -45,7 +45,7 @@ return accessToken
 const checkAccessToken = (accessToken)=>{
   return jwt.verify(accessToken,key,(err,decoded)=>{
         if(err){
-            return false //find error its send accessToken but should send rt
+            return false 
         }else
         return decoded
     })
